@@ -1,8 +1,10 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "standalone",
-  /* config options here */
+  output: "export", // Change 'standalone' to 'export'
+  images: {
+    unoptimized: true, // This is required for static export
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
