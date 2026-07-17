@@ -1,0 +1,871 @@
+     1→'use client'
+     2→
+     3→import { useState, useEffect, useRef, useCallback } from 'react'
+     4→
+     5→// ============================================
+     6→// 🎯 YOUR LINKS CONFIGURATION
+     7→// Replace the URLs below with your actual links!
+     8→// ============================================
+     9→const APPS = [
+    10→  {
+    11→    id: 1,
+    12→    name: 'My Videos',
+    13→    icon: '🎬',
+    14→    // 🔴 REPLACE THIS with your main YouTube channel URL
+    15→    url: 'https://youtube.com/@YOUR_CHANNEL_1',
+    16→    color: '#FF0000',
+    17→    gradient: 'linear-gradient(135deg, #FF6B6B 0%, #EE5A5A 100%)'
+    18→  },
+    19→  {
+    20→    id: 2,
+    21→    name: 'Tutorials',
+    22→    icon: '📺',
+    23→    // 🔴 REPLACE THIS with your tutorial YouTube channel URL
+    24→    url: 'https://youtube.com/@YOUR_CHANNEL_2',
+    25→    color: '#FF6B35',
+    26→    gradient: 'linear-gradient(135deg, #FF9F43 0%, #EE8E32 100%)'
+    27→  },
+    28→  {
+    29→    id: 3,
+    30→    name: 'Gaming',
+    31→    icon: '🎮',
+    32→    // 🔴 REPLACE THIS with your gaming YouTube channel URL
+    33→    url: 'https://youtube.com/@YOUR_CHANNEL_3',
+    34→    color: '#9B59B6',
+    35→    gradient: 'linear-gradient(135deg, #A55EEA 0%, #944DE0 100%)'
+    36→  },
+    37→  {
+    38→    id: 4,
+    39→    name: 'My Playlist',
+    40→    icon: '🎵',
+    41→    // 🟢 REPLACE THIS with your Spotify playlist URL
+    42→    url: 'https://open.spotify.com/playlist/YOUR_PLAYLIST_ID',
+    43→    color: '#1DB954',
+    44→    gradient: 'linear-gradient(135deg, #1DB954 0%, #19AA4A 100%)'
+    45→  },
+    46→  {
+    47→    id: 5,
+    48→    name: 'Instagram',
+    49→    icon: '📸',
+    50→    // 🟡 REPLACE THIS with your Instagram profile URL
+    51→    url: 'https://instagram.com/YOUR_USERNAME',
+    52→    color: '#E4405F',
+    53→    gradient: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)'
+    54→  },
+    55→  {
+    56→    id: 6,
+    57→    name: 'Contact Me',
+    58→    icon: '✉️',
+    59→    // 🔵 REPLACE THIS with your email address (mailto link)
+    60→    url: 'mailto:your.email@example.com',
+    61→    color: '#3498DB',
+    62→    gradient: 'linear-gradient(135deg, #58A7E5 0%, #4790D4 100%)'
+    63→  }
+    64→]
+    65→
+    66→// Boot phases - Mobile OS Animation
+    67→type BootPhase = 'off' | 'logo' | 'loading' | 'hello' | 'lock' | 'ready'
+    68→
+    69→export default function Home() {
+    70→  const [bootPhase, setBootPhase] = useState<BootPhase>('off')
+    71→  const [currentTime, setCurrentTime] = useState('')
+    72→  const [selectedApp, setSelectedApp] = useState<number | null>(null)
+    73→  const [bootProgress, setBootProgress] = useState(0)
+    74→  const [showUnlockHint, setShowUnlockHint] = useState(false)
+    75→  
+    76→  // Clock update
+    77→  useEffect(() => {
+    78→    const updateTime = () => {
+    79→      const now = new Date()
+    80→      const hours = now.getHours().toString().padStart(2, '0')
+    81→      const minutes = now.getMinutes().toString().padStart(2, '0')
+    82→      setCurrentTime(`${hours}:${minutes}`)
+    83→    }
+    84→    updateTime()
+    85→    const interval = setInterval(updateTime, 1000)
+    86→    return () => clearInterval(interval)
+    87→  }, [])
+    88→
+    89→  // Boot sequence - Multi-phase animation
+    90→  useEffect(() => {
+    91→    // Phase 1: Show logo after 500ms
+    92→    const logoTimer = setTimeout(() => setBootPhase('logo'), 500)
+    93→    
+    94→    // Phase 2: Start loading after 2s
+    95→    const loadingTimer = setTimeout(() => setBootPhase('loading'), 2000)
+    96→    
+    97→    // Phase 3: Hello screen after 4s total
+    98→    const helloTimer = setTimeout(() => setBootPhase('hello'), 4000)
+    99→    
+   100→    // Phase 4: Lock screen after 5.5s
+   101→    const lockTimer = setTimeout(() => setBootPhase('lock'), 5500)
+   102→    
+   103→    return () => {
+   104→      clearTimeout(logoTimer)
+   105→      clearTimeout(loadingTimer)
+   106→      clearTimeout(helloTimer)
+   107→      clearTimeout(lockTimer)
+   108→    }
+   109→  }, [])
+   110→
+   111→  // Simulate boot progress during loading phase
+   112→  useEffect(() => {
+   113→    if (bootPhase === 'loading') {
+   114→      setBootProgress(0)
+   115→      const interval = setInterval(() => {
+   116→        setBootProgress(prev => {
+   117→          if (prev >= 100) {
+   118→            clearInterval(interval)
+   119→            return 100
+   120→          }
+   121→          return prev + Math.random() * 15 + 5
+   122→        })
+   123→      }, 200)
+   124→      return () => clearInterval(interval)
+   125→    }
+   126→  }, [bootPhase])
+   127→
+   128→  // Handle unlock - swipe up or tap to unlock
+   129→  const handleUnlock = () => {
+   130→    setBootPhase('ready')
+   131→  }
+   132→
+   133→  const handleAppClick = (app: typeof APPS[0], index: number) => {
+   134→    setSelectedApp(index)
+   135→    if (app.url !== '#') {
+   136→      window.open(app.url, '_blank')
+   137→    }
+   138→  }
+   139→
+   140→  return (
+   141→    <div style={{
+   142→      minHeight: '100vh',
+   143→      minHeight: '100dvh',
+   144→      background: 'linear-gradient(180deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+   145→      display: 'flex',
+   146→      alignItems: 'center',
+   147→      justifyContent: 'center',
+   148→      padding: '16px',
+   149→      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+   150→    }}>
+   151→      {/* Mobile Phone Container */}
+   152→      <div style={{
+   153→        width: '100%',
+   154→        maxWidth: '380px',
+   155→        height: 'calc(100vh - 32px)',
+   156→        maxHeight: '800px',
+   157→        position: 'relative'
+   158→      }}>
+   159→        {/* Phone Frame */}
+   160→        <div style={{
+   161→          width: '100%',
+   162→          height: '100%',
+   163→          background: '#1a1a1a',
+   164→          borderRadius: '44px',
+   165→          padding: '12px',
+   166→          boxShadow: `
+   167→            0 25px 60px rgba(0, 0, 0, 0.5),
+   168→            0 10px 20px rgba(0, 0, 0, 0.3),
+   169→            inset 0 0 0 2px rgba(255, 255, 255, 0.1)
+   170→          `,
+   171→          position: 'relative',
+   172→          display: 'flex',
+   173→          flexDirection: 'column'
+   174→        }}>
+   175→          {/* Dynamic Island / Notch */}
+   176→          <div style={{
+   177→            position: 'absolute',
+   178→            top: '18px',
+   179→            left: '50%',
+   180→            transform: 'translateX(-50%)',
+   181→            width: '120px',
+   182→            height: '34px',
+   183→            background: '#000',
+   184→            borderRadius: '20px',
+   185→            zIndex: 50,
+   186→            boxShadow: 'inset 0 0 4px rgba(0,0,0,0.5)'
+   187→          }} />
+   188→
+   189→          {/* Screen */}
+   190→          <div style={{
+   191→            flex: 1,
+   192→            background: '#000',
+   193→            borderRadius: '36px',
+   194→            overflow: 'hidden',
+   195→            position: 'relative',
+   196→            display: 'flex',
+   197→            flexDirection: 'column'
+   198→          }}>
+   199→            
+   200→            {/* ========== PHASE 1: OFF / BLACK SCREEN ========== */}
+   201→            {bootPhase === 'off' && (
+   202→              <div style={{
+   203→                width: '100%',
+   204→                height: '100%',
+   205→                background: '#000',
+   206→                display: 'flex',
+   207→                alignItems: 'center',
+   208→                justifyContent: 'center'
+   209→              }}>
+   210→                {/* Subtle pulse effect */}
+   211→                <div style={{ 
+   212→                  width: '8px', 
+   213→                  height: '8px', 
+   214→                  background: '#222', 
+   215→                  borderRadius: '50%' 
+   216→                }} />
+   217→              </div>
+   218→            )}
+   219→
+   220→            {/* ========== PHASE 2: APPLE-STYLE LOGO ========== */}
+   221→            {bootPhase === 'logo' && (
+   222→              <div style={{
+   223→                width: '100%',
+   224→                height: '100%',
+   225→                background: '#000',
+   226→                display: 'flex',
+   227→                flexDirection: 'column',
+   228→                alignItems: 'center',
+   229→                justifyContent: 'center',
+   230→                gap: '20px'
+   231→              }}>
+   232→                {/* Glowing Logo */}
+   233→                <div style={{
+   234→                  fontSize: '72px',
+   235→                  animation: 'logoGlow 2s ease-in-out infinite',
+   236→                  filter: 'drop-shadow(0 0 40px rgba(255,255,255,0.4))'
+   237→                }}>📱</div>
+   238→                
+   239→                {/* Subtle loading indicator */}
+   240→                <div style={{
+   241→                  width: '40px',
+   242→                  height: '3px',
+   243→                  background: '#333',
+   244→                  borderRadius: '2px',
+   245→                  overflow: 'hidden'
+   246→                }}>
+   247→                  <div style={{
+   248→                    width: '30%',
+   249→                    height: '100%',
+   250→                    background: '#fff',
+   251→                    borderRadius: '2px',
+   252→                    animation: 'shimmer 1.5s ease-in-out infinite'
+   253→                  }} />
+   254→                </div>
+   255→
+   256→                <style>{`
+   257→                  @keyframes logoGlow {
+   258→                    0%, 100% { opacity: 0.7; transform: scale(1); }
+   259→                    50% { opacity: 1; transform: scale(1.05); filter: drop-shadow(0 0 60px rgba(255,255,255,0.6)); }
+   260→                  }
+   261→                  @keyframes shimmer {
+   262→                    0% { transform: translateX(-100%); }
+   263→                    100% { transform: translateX(350%); }
+   264→                  }
+   265→                `}</style>
+   266→              </div>
+   267→            )}
+   268→
+   269→            {/* ========== PHASE 3: LOADING WITH PROGRESS BAR ========== */}
+   270→            {bootPhase === 'loading' && (
+   271→              <div style={{
+   272→                width: '100%',
+   273→                height: '100%',
+   274→                background: '#000',
+   275→                display: 'flex',
+   276→                flexDirection: 'column',
+   277→                alignItems: 'center',
+   278→                justifyContent: 'center',
+   279→                gap: '30px'
+   280→              }}>
+   281→                {/* Logo smaller */}
+   282→                <div style={{
+   283→                  fontSize: '48px',
+   284→                  opacity: 0.9,
+   285→                  filter: 'drop-shadow(0 0 20px rgba(99, 102, 241, 0.5))'
+   286→                }}>📱</div>
+   287→                
+   288→                {/* Progress Bar Container */}
+   289→                <div style={{
+   290→                  width: '200px',
+   291→                  height: '4px',
+   292→                  background: '#333',
+   293→                  borderRadius: '2px',
+   294→                  overflow: 'hidden'
+   295→                }}>
+   296→                  <div style={{
+   297→                    width: `${Math.min(bootProgress, 100)}%`,
+   298→                    height: '100%',
+   299→                    background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #a78bfa)',
+   300→                    borderRadius: '2px',
+   301→                    transition: 'width 0.15s ease-out',
+   302→                    boxShadow: '0 0 10px rgba(99, 102, 241, 0.5)'
+   303→                  }} />
+   304→                </div>
+   305→                
+   306→                {/* Loading text */}
+   307→                <div style={{
+   308→                  color: '#666',
+   309→                  fontSize: '12px',
+   310→                  letterSpacing: '2px',
+   311→                  textTransform: 'uppercase'
+   312→                }}>
+   313→                  Starting up...
+   314→                </div>
+   315→              </div>
+   316→            )}
+   317→
+   318→            {/* ========== PHASE 4: HELLO SCREEN (iOS Style) ========== */}
+   319→            {bootPhase === 'hello' && (
+   320→              <div style={{
+   321→                width: '100%',
+   322→                height: '100%',
+   323→                background: 'linear-gradient(180deg, #1a1a3e 0%, #16213e 50%, #0d2137 100%)',
+   324→                display: 'flex',
+   325→                flexDirection: 'column',
+   326→                alignItems: 'center',
+   327→                justifyContent: 'center',
+   328→                gap: '16px',
+   329→                animation: 'fadeIn 0.8s ease-out'
+   330→              }}>
+   331→                {/* Time */}
+   332→                <div style={{
+   333→                  color: '#fff',
+   334→                  fontSize: '72px',
+   335→                  fontWeight: '300',
+   336→                  letterSpacing: '-2px',
+   337→                  lineHeight: '1',
+   338→                  textShadow: '0 2px 20px rgba(0,0,0,0.3)'
+   339→                }}>
+   340→                  {currentTime || '--:--'}
+   341→                </div>
+   342→                
+   343→                {/* Date */}
+   344→                <div style={{
+   345→                  color: 'rgba(255,255,255,0.85)',
+   346→                  fontSize: '18px',
+   347→                  fontWeight: '400'
+   348→                }}>
+   349→                  {new Date().toLocaleDateString('en-US', { 
+   350→                    weekday: 'long', 
+   351→                    month: 'long', 
+   352→                    day: 'numeric' 
+   353→                  })}
+   354→                </div>
+   355→                
+   356→                {/* Hello Text */}
+   357→                <div style={{
+   358→                  marginTop: '40px',
+   359→                  color: '#fff',
+   360→                  fontSize: '32px',
+   361→                  fontWeight: '600',
+   362→                  animation: 'helloFadeIn 1s ease-out 0.3s both'
+   363→                }}>
+   364→                  Hello
+   365→                </div>
+   366→
+   367→                <style>{`
+   368→                  @keyframes fadeIn {
+   369→                    from { opacity: 0; }
+   370→                    to { opacity: 1; }
+   371→                  }
+   372→                  @keyframes helloFadeIn {
+   373→                    from { opacity: 0; transform: translateY(10px); }
+   374→                    to { opacity: 1; transform: translateY(0); }
+   375→                  }
+   376→                `}</style>
+   377→              </div>
+   378→            )}
+   379→
+   380→            {/* ========== PHASE 5: LOCK SCREEN ========== */}
+   381→            {bootPhase === 'lock' && (
+   382→              <div 
+   383→                onClick={handleUnlock}
+   384→                onTouchStart={() => setShowUnlockHint(true)}
+   385→                onTouchEnd={() => setShowUnlockHint(false)}
+   386→                onMouseDown={() => setShowUnlockHint(true)}
+   387→                onMouseUp={() => setShowUnlockHint(false)}
+   388→                style={{
+   389→                width: '100%',
+   390→                height: '100%',
+   391→                background: 'linear-gradient(180deg, #1a1a3e 0%, #16213e 35%, #1a3a52 65%, #0d2137 100%)',
+   392→                cursor: 'pointer',
+   393→                position: 'relative',
+   394→                overflow: 'hidden'
+   395→              }}>
+   396→                {/* Wallpaper elements */}
+   397→                {[...Array(30)].map((_, i) => (
+   398→                  <div key={`star-${i}`} style={{
+   399→                    position: 'absolute',
+   400→                    top: `${Math.random() * 50}%`,
+   401→                    left: `${Math.random() * 100}%`,
+   402→                    width: `${Math.random() * 2 + 1}px`,
+   403→                    height: `${Math.random() * 2 + 1}px`,
+   404→                    background: '#fff',
+   405→                    borderRadius: '50%',
+   406→                    opacity: Math.random() * 0.6 + 0.2,
+   407→                    animation: `twinkle ${Math.random() * 3 + 2}s ease-in-out infinite`
+   408→                  }} />
+   409→                ))}
+   410→                
+   411→                {/* Moon */}
+   412→                <div style={{
+   413→                  position: 'absolute',
+   414→                  top: '10%',
+   415→                  right: '15%',
+   416→                  width: '45px',
+   417→                  height: '45px',
+   418→                  background: 'linear-gradient(135deg, #fef9c3 0%, #fde047 100%)',
+   419→                  borderRadius: '50%',
+   420→                  boxShadow: '0 0 25px rgba(250, 204, 21, 0.4)'
+   421→                }} />
+   422→
+   423→                {/* Status Bar */}
+   424→                <div style={{
+   425→                  position: 'absolute',
+   426→                  top: 0,
+   427→                  left: 0,
+   428→                  right: 0,
+   429→                  height: '50px',
+   430→                  paddingTop: '14px',
+   431→                  paddingLeft: '28px',
+   432→                  paddingRight: '28px',
+   433→                  display: 'flex',
+   434→                  justifyContent: 'space-between',
+   435→                  alignItems: 'center',
+   436→                  zIndex: 20,
+   437→                  color: '#fff',
+   438→                  fontSize: '13px',
+   439→                  fontWeight: '600'
+   440→                }}>
+   441→                  <span>{currentTime}</span>
+   442→                  <div style={{ display: 'flex', gap: '6px' }}>
+   443→                    <span>📶</span><span>🔋</span>
+   444→                  </div>
+   445→                </div>
+   446→
+   447→                {/* Time Display */}
+   448→                <div style={{
+   449→                  position: 'absolute',
+   450→                  top: '25%',
+   451→                  left: 0,
+   452→                  right: 0,
+   453→                  textAlign: 'center',
+   454→                  zIndex: 10
+   455→                }}>
+   456→                  <div style={{
+   457→                    color: '#fff',
+   458→                    fontSize: '80px',
+   459→                    fontWeight: '300',
+   460→                    letterSpacing: '-3px',
+   461→                    lineHeight: '1',
+   462→                    textShadow: '0 2px 30px rgba(0,0,0,0.3)'
+   463→                  }}>{currentTime || '--:--'}</div>
+   464→                  <div style={{
+   465→                    color: 'rgba(255,255,255,0.9)',
+   466→                    fontSize: '18px',
+   467→                    fontWeight: '500',
+   468→                    marginTop: '4px'
+   469→                  }}>
+   470→                    {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+   471→                  </div>
+   472→                </div>
+   473→
+   474→                {/* Swipe Up Indicator */}
+   475→                <div style={{
+   476→                  position: 'absolute',
+   477→                  bottom: '40px',
+   478→                  left: '50%',
+   479→                  transform: 'translateX(-50%)',
+   480→                  textAlign: 'center',
+   481→                  zIndex: 10,
+   482→                  transition: 'all 0.2s ease',
+   483→                  opacity: showUnlockHint ? 1 : 0.6,
+   484→                  transform: `translateX(-50%) ${showUnlockHint ? 'scale(1.05)' : ''}`
+   485→                }}>
+   486→                  <div style={{
+   487→                    width: '50px',
+   488→                    height: '32px',
+   489→                    border: '2px solid rgba(255,255,255,0.8)',
+   490→                    borderRadius: '20px',
+   491→                    margin: '0 auto 8px',
+   492→                    display: 'flex',
+   493→                    alignItems: 'center',
+   494→                    justifyContent: 'center'
+   495→                  }}>
+   496→                    <div style={{
+   497→                      width: '22px',
+   498→                      height: '22px',
+   499→                      background: 'rgba(255,255,255,0.8)',
+   500→                      borderRadius: '50%'
+   501→                    }} />
+   502→                  </div>
+   503→                  <div style={{
+   504→                    color: 'rgba(255,255,255,0.8)',
+   505→                    fontSize: '13px',
+   506→                    fontWeight: '500'
+   507→                  }}>
+   508→                    Tap to unlock
+   509→                  </div>
+   510→                </div>
+   511→
+   512→                <style>{`
+   513→                  @keyframes twinkle {
+   514→                    0%, 100% { opacity: 0.3; transform: scale(1); }
+   515→                    50% { opacity: 1; transform: scale(1.2); }
+   516→                  }
+   517→                `}</style>
+   518→              </div>
+   519→            )}
+   520→
+   521→            {/* ========== PHASE 6: HOME SCREEN ========== */}
+   522→            {bootPhase === 'ready' && (
+   523→              <>
+   524→                {/* Wallpaper */}
+   525→                <div style={{
+   526→                  position: 'absolute',
+   527→                  top: 0,
+   528→                  left: 0,
+   529→                  right: 0,
+   530→                  bottom: 0,
+   531→                  background: 'linear-gradient(180deg, #1a1a3e 0%, #16213e 35%, #1a3a52 65%, #0d2137 100%)',
+   532→                  overflow: 'hidden'
+   533→                }}>
+   534→                  {/* Stars */}
+   535→                  {[...Array(40)].map((_, i) => (
+   536→                    <div
+   537→                      key={`star-${i}`}
+   538→                      style={{
+   539→                        position: 'absolute',
+   540→                        top: `${Math.random() * 55}%`,
+   541→                        left: `${Math.random() * 100}%`,
+   542→                        width: `${Math.random() * 2 + 1}px`,
+   543→                        height: `${Math.random() * 2 + 1}px`,
+   544→                        background: '#fff',
+   545→                        borderRadius: '50%',
+   546→                        opacity: Math.random() * 0.7 + 0.3,
+   547→                        animation: `twinkle ${Math.random() * 3 + 2}s ease-in-out infinite`,
+   548→                        animationDelay: `${Math.random() * 2}s`
+   549→                      }}
+   550→                    />
+   551→                  ))}
+   552→                  
+   553→                  {/* Moon */}
+   554→                  <div style={{
+   555→                    position: 'absolute',
+   556→                    top: '12%',
+   557→                    right: '15%',
+   558→                    width: '50px',
+   559→                    height: '50px',
+   560→                    background: 'linear-gradient(135deg, #fef9c3 0%, #fde047 50%, #facc15 100%)',
+   561→                    borderRadius: '50%',
+   562→                    boxShadow: '0 0 30px rgba(250, 204, 21, 0.5), 0 0 60px rgba(250, 204, 21, 0.25)'
+   563→                  }} />
+   564→                  
+   565→                  {/* Aurora effect */}
+   566→                  <div style={{
+   567→                    position: 'absolute',
+   568→                    top: '5%',
+   569→                    left: '-15%',
+   570→                    width: '130%',
+   571→                    height: '40%',
+   572→                    background: 'linear-gradient(180deg, transparent 0%, rgba(34, 197, 94, 0.08) 20%, rgba(59, 130, 246, 0.12) 40%, rgba(168, 85, 247, 0.08) 60%, transparent 100%)',
+   573→                    animation: 'aurora 8s ease-in-out infinite alternate',
+   574→                    filter: 'blur(15px)',
+   575→                    transform: 'skewX(-10deg)'
+   576→                  }} />
+   577→                  
+   578→                  {/* Mountains */}
+   579→                  <svg style={{
+   580→                    position: 'absolute',
+   581→                    bottom: '22%',
+   582→                    left: 0,
+   583→                    width: '100%',
+   584→                    height: '38%'
+   585→                  }} viewBox="0 0 400 150" preserveAspectRatio="none">
+   586→                    <path d="M0,150 L0,85 L45,55 L95,80 L145,35 L195,70 L245,30 L295,60 L345,42 L400,68 L400,150 Z" 
+   587→                      fill="#1e3a5f" opacity="0.85"/>
+   588→                    <path d="M0,150 L0,95 L35,72 L78,88 L138,48 L188,73 L238,42 L288,67 L338,52 L400,78 L400,150 Z" 
+   589→                      fill="#152238" opacity="0.9"/>
+   590→                  </svg>
+   591→                  
+   592→                  {/* Ground/Trees */}
+   593→                  <div style={{
+   594→                    position: 'absolute',
+   595→                    bottom: 0,
+   596→                    left: 0,
+   597→                    right: 0,
+   598→                    height: '22%',
+   599→                    background: 'linear-gradient(180deg, #0d1b2a 0%, #051015 100%)'
+   600→                  }}>
+   601→                    {[...Array(12)].map((_, i) => (
+   602→                      <div
+   603→                        key={`tree-${i}`}
+   604→                        style={{
+   605→                          position: 'absolute',
+   606→                          bottom: 0,
+   607→                          left: `${i * 8 + Math.random() * 4}%`,
+   608→                          width: `${Math.random() * 12 + 6}px`,
+   609→                          height: `${Math.random() * 25 + 15}px`,
+   610→                          background: 'linear-gradient(180deg, #0a1929 0%, #050d14 100%)',
+   611→                          clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)',
+   612→                          opacity: Math.random() * 0.5 + 0.5
+   613→                        }}
+   614→                      />
+   615→                    ))}
+   616→                  </div>
+   617→                  
+   618→                  {/* Water reflection */}
+   619→                  <div style={{
+   620→                    position: 'absolute',
+   621→                    bottom: 0,
+   622→                    left: 0,
+   623→                    right: 0,
+   624→                    height: '6%',
+   625→                    background: 'linear-gradient(180deg, rgba(30, 58, 95, 0.4) 0%, rgba(5, 16, 21, 0.7) 100%)',
+   626→                    animation: 'water 4s ease-in-out infinite'
+   627→                  }} />
+   628→
+   629→                  <style>{`
+   630→                    @keyframes twinkle {
+   631→                      0%, 100% { opacity: 0.3; transform: scale(1); }
+   632→                      50% { opacity: 1; transform: scale(1.2); }
+   633→                    }
+   634→                    @keyframes aurora {
+   635→                      0% { opacity: 0.3; transform: skewX(-10deg) translateX(-5%); }
+   636→                      100% { opacity: 0.7; transform: skewX(-10deg) translateX(5%); }
+   637→                    }
+   638→                    @keyframes water {
+   639→                      0%, 100% { opacity: 0.7; }
+   640→                      50% { opacity: 1; }
+   641→                    }
+   642→                    @keyframes spin {
+   643→                      from { transform: rotate(0deg); }
+   644→                      to { transform: rotate(360deg); }
+   645→                    }
+   646→                    @keyframes pulse {
+   647→                      0%, 100% { transform: scale(1); }
+   648→                      50% { transform: scale(1.1); }
+   649→                    }
+   650→                    @keyframes fadeInOut {
+   651→                      0%, 100% { opacity: 0.4; }
+   652→                      50% { opacity: 1; }
+   653→                    }
+   654→                    @keyframes dotPulse {
+   655→                      0%, 100% { transform: scale(1); opacity: 0.5; }
+   656→                      50% { transform: scale(1.3); opacity: 1; }
+   657→                    }
+   658→                  `}</style>
+   659→                </div>
+   660→
+   661→                {/* Status Bar */}
+   662→                <div style={{
+   663→                  position: 'absolute',
+   664→                  top: 0,
+   665→                  left: 0,
+   666→                  right: 0,
+   667→                  height: '50px',
+   668→                  paddingTop: '14px',
+   669→                  paddingLeft: '28px',
+   670→                  paddingRight: '28px',
+   671→                  display: 'flex',
+   672→                  justifyContent: 'space-between',
+   673→                  alignItems: 'center',
+   674→                  zIndex: 20,
+   675→                  color: '#fff',
+   676→                  fontSize: '13px',
+   677→                  fontWeight: '600',
+   678→                  textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+   679→                }}>
+   680→                  <span>{currentTime}</span>
+   681→                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+   682→                    <span>📶</span>
+   683→                    <span>🔋</span>
+   684→                  </div>
+   685→                </div>
+   686→
+   687→                {/* App Icons Grid */}
+   688→                <div style={{
+   689→                  position: 'absolute',
+   690→                  top: '60px',
+   691→                  left: '16px',
+   692→                  right: '16px',
+   693→                  bottom: '90px',
+   694→                  display: 'grid',
+   695→                  gridTemplateColumns: 'repeat(3, 1fr)',
+   696→                  gridTemplateRows: 'repeat(2, 1fr)',
+   697→                  gap: '16px',
+   698→                  padding: '12px',
+   699→                  zIndex: 10
+   700→                }}>
+   701→                  {APPS.map((app, index) => (
+   702→                    <a
+   703→                      key={app.id}
+   704→                      href={app.url}
+   705→                      target="_blank"
+   706→                      rel="noopener noreferrer"
+   707→                      onClick={(e) => {
+   708→                        handleAppClick(app, index)
+   709→                      }}
+   710→                      onTouchStart={() => setSelectedApp(index)}
+   711→                      onTouchEnd={() => setTimeout(() => setSelectedApp(null), 200)}
+   712→                      onMouseDown={() => setSelectedApp(index)}
+   713→                      onMouseUp={() => setTimeout(() => setSelectedApp(null), 200)}
+   714→                      style={{
+   715→                        display: 'flex',
+   716→                        flexDirection: 'column',
+   717→                        alignItems: 'center',
+   718→                        gap: '6px',
+   719→                        textDecoration: 'none',
+   720→                        transition: 'transform 0.15s ease',
+   721→                        transform: selectedApp === index ? 'scale(0.92)' : 'scale(1)'
+   722→                      }}
+   723→                    >
+   724→                      {/* Icon */}
+   725→                      <div style={{
+   726→                        width: '64px',
+   727→                        height: '64px',
+   728→                        borderRadius: '16px',
+   729→                        background: app.gradient,
+   730→                        display: 'flex',
+   731→                        alignItems: 'center',
+   732→                        justifyContent: 'center',
+   733→                        fontSize: '32px',
+   734→                        boxShadow: selectedApp === index 
+   735→                          ? '0 4px 20px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(255,255,255,0.3)' 
+   736→                          : '0 4px 15px rgba(0,0,0,0.3), inset 0 1px 0 rgba(255,255,255,0.2)',
+   737→                        border: selectedApp === index ? '2px solid rgba(255,255,255,0.5)' : 'none',
+   738→                        transition: 'all 0.15s ease'
+   739→                      }}>
+   740→                        {app.icon}
+   741→                      </div>
+   742→                      
+   743→                      {/* Label */}
+   744→                      <span style={{
+   745→                        fontSize: '11px',
+   746→                        color: '#fff',
+   747→                        fontWeight: '500',
+   748→                        textShadow: '0 1px 3px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5)',
+   749→                        textAlign: 'center',
+   750→                        letterSpacing: '0.2px'
+   751→                      }}>
+   752→                        {app.name}
+   753→                      </span>
+   754→                    </a>
+   755→                  ))}
+   756→                </div>
+   757→
+   758→                {/* Home Indicator Bar */}
+   759→                <div style={{
+   760→                  position: 'absolute',
+   761→                  bottom: '8px',
+   762→                  left: '50%',
+   763→                  transform: 'translateX(-50%)',
+   764→                  width: '134px',
+   765→                  height: '5px',
+   766→                  background: 'rgba(255,255,255,0.6)',
+   767→                  borderRadius: '3px',
+   768→                  zIndex: 20
+   769→                }} />
+   770→
+   771→                {/* Dock / Bottom Bar */}
+   772→                <div style={{
+   773→                  position: 'absolute',
+   774→                  bottom: '24px',
+   775→                  left: '50%',
+   776→                  transform: 'translateX(-50%)',
+   777→                  display: 'flex',
+   778→                  gap: '20px',
+   779→                  padding: '10px 20px',
+   780→                  background: 'rgba(255,255,255,0.15)',
+   781→                  backdropFilter: 'blur(20px)',
+   782→                  WebkitBackdropFilter: 'blur(20px)',
+   783→                  borderRadius: '28px',
+   784→                  border: '1px solid rgba(255,255,255,0.2)',
+   785→                  zIndex: 15
+   786→                }}>
+   787→                  {[
+   788→                    { icon: '💬', label: 'Chat' },
+   789→                    { icon: '📷', label: 'Camera' },
+   790→                    { icon: '⚙️', label: 'Settings' }
+   791→                  ].map((item, i) => (
+   792→                    <button
+   793→                      key={i}
+   794→                      onClick={(e) => e.preventDefault()}
+   795→                      style={{
+   796→                        background: 'none',
+   797→                        border: 'none',
+   798→                        cursor: 'pointer',
+   799→                        fontSize: '22px',
+   800→                        padding: '4px',
+   801→                        transition: 'transform 0.15s ease'
+   802→                      }}
+   803→                    >
+   804→                      {item.icon}
+   805→                    </button>
+   806→                  ))}
+   807→                </div>
+   808→
+   809→                {/* Screen glare effect */}
+   810→                <div style={{
+   811→                  position: 'absolute',
+   812→                  top: 0,
+   813→                  left: 0,
+   814→                  right: 0,
+   815→                  bottom: 0,
+   816→                  background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 40%, transparent 100%)',
+   817→                  pointerEvents: 'none',
+   818→                  zIndex: 25,
+   819→                  borderRadius: '36px'
+   820→                }} />
+   821→              </>
+   822→            )}
+   823→          </div>
+   824→          
+   825→          {/* Side Buttons */}
+   826→          <div style={{
+   827→            position: 'absolute',
+   828→            right: '-2px',
+   829→            top: '140px',
+   830→            width: '4px',
+   831→            height: '60px',
+   832→            background: '#333',
+   833→            borderRadius: '0 4px 4px 0'
+   834→          }} />
+   835→          <div style={{
+   836→            position: 'absolute',
+   837→            left: '-2px',
+   838→            top: '180px',
+   839→            width: '4px',
+   840→            height: '40px',
+   841→            background: '#333',
+   842→            borderRadius: '4px 0 0 4px'
+   843→          }} />
+   844→          <div style={{
+   845→            position: 'absolute',
+   846→            left: '-2px',
+   847→            top: '240px',
+   848→            width: '4px',
+   849→            height: '50px',
+   850→            background: '#333',
+   851→            borderRadius: '4px 0 0 4px'
+   852→          }} />
+   853→        </div>
+   854→        
+   855→        {/* Brand Text below phone */}
+   856→        <div style={{
+   857→          textAlign: 'center',
+   858→          marginTop: '16px',
+   859→          color: 'rgba(255,255,255,0.4)',
+   860→          fontSize: '11px',
+   861→          letterSpacing: '2px',
+   862→          textTransform: 'uppercase',
+   863→          fontWeight: '500'
+   864→        }}>
+   865→          ✨ Tap any app to open ✨
+   866→        </div>
+   867→      </div>
+   868→    </div>
+   869→  )
+   870→}
+   871→

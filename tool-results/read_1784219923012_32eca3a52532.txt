@@ -1,0 +1,1805 @@
+     1→'use client'
+     2→
+     3→import { useState, useEffect, useRef } from 'react'
+     4→
+     5→// ============================================
+     6→// 📱 FUN INTERACTIVE APPS CONFIGURATION
+     7→// ============================================
+     8→type AppType = 'game' | 'tool' | 'fun' | 'creative'
+     9→
+    10→interface App {
+    11→  id: string
+    12→  name: string
+    13→  icon: string
+    14→  color: string
+    15→  gradient: string
+    16→  type: AppType
+    17→}
+    18→
+    19→// 🔗 YOUR IMPORTANT LINKS (These show in the DOCK!)
+    20→interface LinkApp {
+    21→  id: string
+    22→  name: string
+    23→  icon: string
+    24→  url: string
+    25→  gradient: string
+    26→}
+    27→
+    28→const LINK_APPS: LinkApp[] = [
+    29→  { id: 'videos', name: 'My Videos', icon: '🎬', url: 'https://youtube.com/@YOUR_CHANNEL_1', gradient: 'linear-gradient(135deg, #FF6B6B 0%, #EE5A5A 100%)' },
+    30→  { id: 'tutorials', name: 'Tutorials', icon: '📺', url: 'https://youtube.com/@YOUR_CHANNEL_2', gradient: 'linear-gradient(135deg, #FF9F43 0%, #EE8E32 100%)' },
+    31→  { id: 'gaming', name: 'Gaming', icon: '🎮', url: 'https://youtube.com/@YOUR_CHANNEL_3', gradient: 'linear-gradient(135deg, #A55EEA 0%, #944DE0 100%)' },
+    32→  { id: 'spotify', name: 'Playlist', icon: '🎵', url: 'https://open.spotify.com/playlist/YOUR_PLAYLIST_ID', gradient: 'linear-gradient(135deg, #1DB954 0%, #19AA4A 100%)' },
+    33→  { id: 'instagram', name: 'Instagram', icon: '📸', url: 'https://instagram.com/YOUR_USERNAME', gradient: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)' },
+    34→  { id: 'email', name: 'Contact', icon: '✉️', url: 'mailto:your.email@example.com', gradient: 'linear-gradient(135deg, #58A7E5 0%, #4790D4 100%)' },
+    35→]
+    36→
+    37→const APPS: App[] = [
+    38→  // 🎮 GAMES
+    39→  { id: 'snake', name: 'Snake', icon: '🐍', color: '#22c55e', gradient: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', type: 'game' },
+    40→  { id: 'tictactoe', name: 'Tic Tac Toe', icon: '⭕', color: '#ef4444', gradient: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', type: 'game' },
+    41→  { id: 'memory', name: 'Memory', icon: '🧠', color: '#8b5cf6', gradient: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', type: 'game' },
+    42→  { id: 'puzzle2048', name: '2048', icon: '🔢', color: '#f59e0b', gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', type: 'game' },
+    43→  { id: 'whackamole', name: 'Whack!', icon: '🔨', color: '#973716', gradient: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)', type: 'game' },
+    44→  
+    45→  // 🛠️ TOOLS
+    46→  { id: 'calculator', name: 'Calculator', icon: '🧮', color: '#64748b', gradient: 'linear-gradient(135deg, #64748b 0%, #475569 100%)', type: 'tool' },
+    47→  { id: 'stopwatch', name: 'Stopwatch', icon: '⏱️', color: '#0ea5e9', gradient: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', type: 'tool' },
+    48→  { id: 'notes', name: 'Notes', icon: '📝', color: '#eab308', gradient: 'linear-gradient(135deg, #eab308 0%, #ca8a04 100%)', type: 'tool' },
+    49→  { id: 'paint', name: 'Paint', icon: '🎨', color: '#ec4899', gradient: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)', type: 'creative' },
+    50→  
+    51→  // 🎉 FUN APPS
+    52→  { id: 'dice', name: 'Dice', icon: '🎲', color: '#f43f5e', gradient: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)', type: 'fun' },
+    53→  { id: 'coinflip', name: 'Coin Flip', icon: '🪙', color: '#d97706', gradient: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)', type: 'fun' },
+    54→  { id: 'magic8ball', name: 'Magic 8', icon: '🔮', color: '#6366f1', gradient: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', type: 'fun' },
+    55→  { id: 'jokes', name: 'Jokes', icon: '😂', color: '#14b8a6', gradient: 'linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)', type: 'fun' },
+    56→  { id: 'piano', name: 'Piano', icon: '🎹', color: '#1d4ed8', gradient: 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)', type: 'creative' },
+    57→  { id: 'colorgen', name: 'Colors', icon: '🌈', color: '#f472b6', gradient: 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)', type: 'fun' },
+    58→  { id: 'agecalc', name: 'My Age', icon: '🎂', color: '#fb923c', gradient: 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)', type: 'tool' },
+    59→  { id: 'tipcalc', name: 'Tip Calc', icon: '💰', color: '#059669', gradient: 'linear-gradient(135deg, #059669 0%, #047857 100%)', type: 'tool' },
+    60→]
+    61→
+    62→// Boot phases - Mobile OS Animation
+    63→type BootPhase = 'off' | 'logo' | 'loading' | 'hello' | 'lock' | 'ready'
+    64→type OpenApp = string | null
+    65→
+    66→// Snake Game Component
+    67→function SnakeGame({ onClose }: { onClose: () => void }) {
+    68→  const [snake, setSnake] = useState([{ x: 5, y: 5 }])
+    69→  const [food, setFood] = useState({ x: 10, y: 10 })
+    70→  const [direction, setDirection] = useState({ x: 1, y: 0 })
+    71→  const [gameOver, setGameOver] = useState(false)
+    72→  const [score, setScore] = useState(0)
+    73→  const [isPlaying, setIsPlaying] = useState(false)
+    74→  const gameRef = useRef<NodeJS.Timeout>()
+    75→
+    76→  const resetGame = () => {
+    77→    setSnake([{ x: 5, y: 5 }])
+    78→    setFood({ x: Math.floor(Math.random() * 15), y: Math.floor(Math.random() * 15) })
+    79→    setDirection({ x: 1, y: 0 })
+    80→    setGameOver(false)
+    81→    setScore(0)
+    82→    setIsPlaying(true)
+    83→  }
+    84→
+    85→  useEffect(() => {
+    86→    if (!isPlaying || gameOver) return
+    87→    
+    88→    gameRef.current = setInterval(() => {
+    89→      setSnake(prevSnake => {
+    90→        const head = { ...prevSnake[0] }
+    91→        head.x += direction.x
+    92→        head.y += direction.y
+    93→        
+    94→        if (head.x < 0 || head.x >= 15 || head.y < 0 || head.y >= 15 ||
+    95→            prevSnake.some(s => s.x === head.x && s.y === head.y)) {
+    96→          setGameOver(true)
+    97→          setIsPlaying(false)
+    98→          return prevSnake
+    99→        }
+   100→        
+   101→        const newSnake = [head, ...prevSnake]
+   102→        if (head.x === food.x && head.y === food.y) {
+   103→          setScore(s => s + 10)
+   104→          setFood({ x: Math.floor(Math.random() * 15), y: Math.floor(Math.random() * 15) })
+   105→        } else {
+   106→          newSnake.pop()
+   107→        }
+   108→        return newSnake
+   109→      })
+   110→    }, 200)
+   111→
+   112→    return () => clearInterval(gameRef.current)
+   113→  }, [isPlaying, gameOver, direction, food])
+   114→
+   115→  useEffect(() => {
+   116→    const handleKey = (e: KeyboardEvent) => {
+   117→      if (!isPlaying) return
+   118→      switch(e.key) {
+   119→        case 'ArrowUp': if (direction.y !== 1) setDirection({ x: 0, y: -1 }); break
+   120→        case 'ArrowDown': if (direction.y !== -1) setDirection({ x: 0, y: 1 }); break
+   121→        case 'ArrowLeft': if (direction.x !== 1) setDirection({ x: -1, y: 0 }); break
+   122→        case 'ArrowRight': if (direction.x !== -1) setDirection({ x: 1, y: 0 }); break
+   123→      }
+   124→    }
+   125→    window.addEventListener('keydown', handleKey)
+   126→    return () => window.removeEventListener('keydown', handleKey)
+   127→  }, [isPlaying, direction])
+   128→
+   129→  const cellSize = 16
+   130→  return (
+   131→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', height: '100%' }}>
+   132→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', padding: '0 8px' }}>
+   133→        <span style={{ color: '#22c55e', fontWeight: 'bold' }}>Score: {score}</span>
+   134→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+   135→      </div>
+   136→      <div style={{
+   137→        display: 'grid',
+   138→        gridTemplateColumns: `repeat(15, ${cellSize}px)`,
+   139→        gridTemplateRows: `repeat(15, ${cellSize}px)`,
+   140→        gap: '1px',
+   141→        background: '#1a1a2e',
+   142→        padding: '8px',
+   143→        borderRadius: '12px',
+   144→        border: '2px solid #22c55e'
+   145→      }}>
+   146→        {Array.from({ length: 225 }).map((_, i) => {
+   147→          const x = i % 15
+   148→          const y = Math.floor(i / 15)
+   149→          const isSnake = snake.some(s => s.x === x && s.y === y)
+   150→          const isFood = food.x === x && food.y === y
+   151→          return (
+   152→            <div key={i} style={{
+   153→              width: cellSize,
+   154→              height: cellSize,
+   155→              background: isSnake ? '#22c55e' : isFood ? '#ef4444' : '#0f0f1a',
+   156→              borderRadius: isSnake || isFood ? '3px' : '1px',
+   157→              transition: 'background 0.05s'
+   158→            }} />
+   159→          )
+   160→        })}
+   161→      </div>
+   162→      {!isPlaying && (
+   163→        <button onClick={resetGame} style={{
+   164→          ...appBtnStyle,
+   165→          background: 'linear-gradient(135deg, #22c55e, #16a34a)',
+   166→          width: '100%'
+   167→        }}>
+   168→          {gameOver ? 'Play Again' : 'Start Game'}
+   169→        </button>
+   170→      )}
+   171→      {isPlaying && !gameOver && (
+   172→        <div style={{ color: '#888', fontSize: '11px' }}>Use arrow keys or swipe</div>
+   173→      )}
+   174→      {/* Mobile Controls */}
+   175→      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 40px)', gap: '4px' }}>
+   176→        <div /><div><button onTouchEnd={() => isPlaying && direction.y !== 1 && setDirection({ x: 0, y: -1 })} style={dpadStyle}>↑</button></div><div />
+   177→        <div><button onTouchEnd={() => isPlaying && direction.x !== 1 && setDirection({ x: -1, y: 0 })} style={dpadStyle}>←</button></div>
+   178→        <div><button onTouchEnd={() => isPlaying && direction.x !== -1 && setDirection({ x: 1, y: 0 })} style={dpadStyle}>→</button></div>
+   179→        <div /><div><button onTouchEnd={() => isPlaying && direction.y !== -1 && setDirection({ x: 0, y: 1 })} style={dpadStyle}>↓</button></div><div />
+   180→      </div>
+   181→    </div>
+   182→  )
+   183→}
+   184→
+   185→// Tic Tac Toe Component
+   186→function TicTacToe({ onClose }: { onClose: () => void }) {
+   187→  const [board, setBoard] = useState(Array(9).fill(null))
+   188→  const [isXNext, setIsXNext] = useState(true)
+   189→  const [winner, setWinner] = useState<string | null>(null)
+   190→
+   191→  const checkWinner = (s: (string | null)[]) => {
+   192→    const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]]
+   193→    for (const [a,b,c] of lines) {
+   194→      if (s[a] && s[a] === s[b] && s[a] === s[c]) return s[a]
+   195→    }
+   196→    return null
+   197→  }
+   198→
+   199→  const handleClick = (i: number) => {
+   200→    if (board[i] || winner) return
+   201→    const newBoard = [...board]
+   202→    newBoard[i] = isXNext ? '❌' : '⭕'
+   203→    setBoard(newBoard)
+   204→    setIsXNext(!isXNext)
+   205→    const w = checkWinner(newBoard)
+   206→    if (w) setWinner(w)
+   207→  }
+   208→
+   209→  const reset = () => { setBoard(Array(9).fill(null)); setIsXNext(true); setWinner(null) }
+   210→
+   211→  return (
+   212→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', height: '100%', justifyContent: 'center' }}>
+   213→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+   214→        <span style={{ color: '#ef4444', fontWeight: 'bold' }}>{winner ? `${winner} wins!` : isXNext ? "❌'s Turn" : "⭕'s Turn"}</span>
+   215→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+   216→      </div>
+   217→      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 60px)', gap: '8px' }}>
+   218→        {board.map((cell, i) => (
+   219→          <button key={i} onClick={() => handleClick(i)} style={{
+   220→            width: 60, height: 60, fontSize: '28px',
+   221→            background: cell ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.05)',
+   222→            border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px',
+   223→            color: '#fff', cursor: 'pointer', transition: 'all 0.15s'
+   224→          }}>{cell}</button>
+   225→        ))}
+   226→      </div>
+   227→      <button onClick={reset} style={{ ...appBtnStyle, background: 'linear-gradient(135deg, #ef4444, #dc2626)' }}>New Game</button>
+   228→    </div>
+   229→  )
+   230→}
+   231→
+   232→// Memory Match Game
+   233→function MemoryGame({ onClose }: { onClose: () => void }) {
+   234→  const emojis = ['🎮', '🎲', '🎯', '🎪', '🎨', '🎭', '🎪', '🎯']
+   235→  const [cards, setCards] = useState<{ emoji: string; flipped: boolean; matched: boolean }[]>(() =>
+   236→    [...emojis, ...emojis].sort(() => Math.random() - 0.5).map(e => ({ emoji: e, flipped: false, matched: false }))
+   237→  )
+   238→  const [flippedIdx, setFlippedIdx] = useState<number[]>([])
+   239→  const [moves, setMoves] = useState(0)
+   240→
+   241→  const handleClick = (idx: number) => {
+   242→    if (flippedIdx.length >= 2 || cards[idx].flipped || cards[idx].matched) return
+   243→    const newCards = [...cards]
+   244→    newCards[idx].flipped = true
+   245→    setCards(newCards)
+   246→    const newFlipped = [...flippedIdx, idx]
+   247→    setFlippedIdx(newFlipped)
+   248→
+   249→    if (newFlipped.length === 2) {
+   250→      setMoves(m => m + 1)
+   251→      if (cards[newFlipped[0]].emoji === cards[newFlipped[1]].emoji) {
+   252→        setTimeout(() => {
+   253→          const c = [...cards]
+   254→          c[newFlipped[0]].matched = true
+   255→          c[newFlipped[1]].matched = true
+   256→          setCards(c)
+   257→          setFlippedIdx([])
+   258→        }, 500)
+   259→      } else {
+   260→        setTimeout(() => {
+   261→          const c = [...cards]
+   262→          c[newFlipped[0]].flipped = false
+   263→          c[newFlipped[1]].flipped = false
+   264→          setCards(c)
+   265→          setFlippedIdx([])
+   266→        }, 800)
+   267→      }
+   268→    }
+   269→  }
+   270→
+   271→  const reset = () => {
+   272→    setCards([...emojis, ...emojis].sort(() => Math.random() - 0.5).map(e => ({ emoji: e, flipped: false, matched: false })))
+   273→    setFlippedIdx([])
+   274→    setMoves(0)
+   275→  }
+   276→
+   277→  const won = cards.every(c => c.matched)
+   278→
+   279→  return (
+   280→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', height: '100%' }}>
+   281→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+   282→        <span style={{ color: '#8b5cf6', fontWeight: 'bold' }}>Moves: {moves}</span>
+   283→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+   284→      </div>
+   285→      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 52px)', gap: '8px' }}>
+   286→        {cards.map((card, i) => (
+   287→          <button key={i} onClick={() => handleClick(i)} style={{
+   288→            width: 52, height: 52, fontSize: '24px',
+   289→            background: card.flipped || card.matched ? 'rgba(139,92,246,0.2)' : 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+   290→            border: card.matched ? '2px solid #22c55e' : '1px solid rgba(255,255,255,0.2)',
+   291→            borderRadius: '10px', color: card.flipped || card.matched ? '#fff' : 'transparent',
+   292→            cursor: 'pointer', transition: 'all 0.2s'
+   293→          }}>{card.flipped || card.matched ? card.emoji : '?'}</button>
+   294→        ))}
+   295→      </div>
+   296→      {won && <div style={{ color: '#22c55e', fontWeight: 'bold' }}>🎉 You Won!</div>}
+   297→      <button onClick={reset} style={{ ...appBtnStyle, background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)' }}>Reset</button>
+   298→    </div>
+   299→  )
+   300→}
+   301→
+   302→// 2048 Puzzle Game
+   303→function Puzzle2048({ onClose }: { onClose: () => void }) {
+   304→  const [grid, setGrid] = useState<number[][]>(() => Array(4).fill(null).map(() => Array(4).fill(0)))
+   305→  const [score, setScore] = useState(0)
+   306→
+   307→  const addTile = (g: number[][]) => {
+   308→    const empty: [number, number][] = []
+   309→    g.forEach((row, r) => row.forEach((cell, c) => { if (cell === 0) empty.push([r, c]) }))
+   310→    if (empty.length > 0) {
+   311→      const [r, c] = empty[Math.floor(Math.random() * empty.length)]
+   312→      g[r][c] = Math.random() < 0.9 ? 2 : 4
+   313→    }
+   314→    return g
+   315→  }
+   316→
+   317→  const initGame = () => {
+   318→    let g = Array(4).fill(null).map(() => Array(4).fill(0))
+   319→    g = addTile(g)
+   320→    g = addTile(g)
+   321→    setGrid(g)
+   322→    setScore(0)
+   323→  }
+   324→
+   325→  useEffect(() => { initGame() }, [])
+   326→
+   327→  const slide = (g: number[][], dir: string): number[][] => {
+   328→    let newG = g.map(row => [...row])
+   329→    const rotated = dir === 'up' || dir === 'down' ? newG[0].map((_, i) => newG.map(row => row[i])) : newG.map(row => [...row])
+   330→    
+   331→    const moved = rotated.map(row => {
+   332→      let filtered = row.filter(x => x !== 0)
+   333→      for (let i = 0; i < filtered.length - 1; i++) {
+   334→        if (filtered[i] === filtered[i + 1]) {
+   335→          filtered[i] *= 2
+   336→          setScore(s => s + filtered[i])
+   337→          filtered.splice(i + 1, 1)
+   338→        }
+   339→      }
+   340→      while (filtered.length < 4) filtered.push(0)
+   341→      return filtered
+   342→    })
+   343→
+   344→    return dir === 'up' || dir === 'down' ? moved[0].map((_, i) => moved.map(row => row[i])) : moved
+   345→  }
+   346→
+   347→  const move = (dir: string) => {
+   348→    const newGrid = slide(grid, dir)
+   349→    if (JSON.stringify(newGrid) !== JSON.stringify(grid)) {
+   350→      setGrid(addTile(newGrid))
+   351→    }
+   352→  }
+   353→
+   354→  useEffect(() => {
+   355→    const handleKey = (e: KeyboardEvent) => {
+   356→      switch(e.key) {
+   357→        case 'ArrowUp': move('up'); break
+   358→        case 'ArrowDown': move('down'); break
+   359→        case 'ArrowLeft': move('left'); break
+   360→        case 'ArrowRight': move('right'); break
+   361→      }
+   362→    }
+   363→    window.addEventListener('keydown', handleKey)
+   364→    return () => window.removeEventListener('keydown', handleKey)
+   365→  }, [grid])
+   366→
+   367→  const getColor = (val: number) => {
+   368→    const colors: Record<number, string> = { 2: '#eee4da', 4: '#ede0c8', 8: '#f2b179', 16: '#f59563', 32: '#f67c5f', 64: '#f65e3b', 128: '#edcf72', 256: '#edcc61', 512: '#edc850', 1024: '#edc53f', 2048: '#edc22e' }
+   369→    return colors[val] || '#3c3a32'
+   370→  }
+   371→
+   372→  return (
+   373→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', height: '100%' }}>
+   374→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+   375→        <span style={{ color: '#f59e0b', fontWeight: 'bold' }}>Score: {score}</span>
+   376→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+   377→      </div>
+   378→      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 52px)', gap: '6px', background: '#bbada0', padding: '8px', borderRadius: '8px' }}>
+   379→        {grid.flat().map((cell, i) => (
+   380→          <div key={i} style={{
+   381→            width: 52, height: 52, display: 'flex', alignItems: 'center', justifyContent: 'center',
+   382→            background: getColor(cell), borderRadius: '6px', fontSize: cell > 512 ? '18px' : cell > 64 ? '22px' : '26px',
+   383→            fontWeight: 'bold', color: cell > 4 ? '#f9f6f2' : '#776e65'
+   384→          }}>{cell || ''}</div>
+   385→        ))}
+   386→      </div>
+   387→      <div style={{ display: 'flex', gap: '8px' }}>
+   388→        <button onClick={() => move('left')} style={arrowBtnStyle}>←</button>
+   389→        <button onClick={() => move('up')} style={arrowBtnStyle}>↑</button>
+   390→        <button onClick={() => move('down')} style={arrowBtnStyle}>↓</button>
+   391→        <button onClick={() => move('right')} style={arrowBtnStyle}>→</button>
+   392→      </div>
+   393→      <button onClick={initGame} style={{ ...appBtnStyle, background: 'linear-gradient(135deg, #f59e0b, #d97706)' }}>New Game</button>
+   394→    </div>
+   395→  )
+   396→}
+   397→
+   398→// Whack-a-Mole Game
+   399→function WhackAMole({ onClose }: { onClose: () => void }) {
+   400→  const [holes, setHoles] = useState<boolean[]>(Array(9).fill(false))
+   401→  const [score, setScore] = useState(0)
+   402→  const [timeLeft, setTimeLeft] = useState(30)
+   403→  const [playing, setPlaying] = useState(false)
+   404→  const moleTimer = useRef<NodeJS.Timeout>()
+   405→  const gameTimer = useRef<NodeJS.Timeout>()
+   406→
+   407→  const showMole = () => {
+   408→    const idx = Math.floor(Math.random() * 9)
+   409→    setHoles(h => h.map((v, i) => i === idx))
+   410→    moleTimer.current = setTimeout(showMole, 600 + Math.random() * 500)
+   411→  }
+   412→
+   413→  const startGame = () => {
+   414→    setScore(0); setTimeLeft(30); setPlaying(true)
+   415→    showMole()
+   416→    gameTimer.current = setInterval(() => {
+   417→      setTimeLeft(t => { if (t <= 1) { endGame(); return 0 } return t - 1 })
+   418→    }, 1000)
+   419→  }
+   420→
+   421→  const endGame = () => {
+   422→    setPlaying(false)
+   423→    clearTimeout(moleTimer.current)
+   424→    clearInterval(gameTimer.current)
+   425→    setHoles(Array(9).fill(false))
+   426→  }
+   427→
+   428→  const whack = (idx: number) => {
+   429→    if (holes[idx]) {
+   430→      setScore(s => s + 1)
+   431→      setHoles(h => h.map((v, i) => i === idx ? false : v))
+   432→    }
+   433→  }
+   434→
+   435→  return (
+   436→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', height: '100%', justifyContent: 'center' }}>
+   437→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+   438→        <span style={{ color: '#ea580c', fontWeight: 'bold' }}>Score: {score} | Time: {timeLeft}s</span>
+   439→        <button onClick={() => { endGame(); onClose(); }} style={closeBtnStyle}>✕</button>
+   440→      </div>
+   441→      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 60px)', gap: '10px' }}>
+   442→        {holes.map((hasMole, i) => (
+   443→          <button key={i} onClick={() => whack(i)} style={{
+   444→            width: 60, height: 60, borderRadius: '50%',
+   445→            background: hasMole ? '#8B4513' : '#654321',
+   446→            border: '3px solid #3d2914', fontSize: '28px',
+   447→            cursor: 'pointer', transform: hasMole ? 'scale(1.1)' : 'scale(1)',
+   448→            transition: 'all 0.1s', boxShadow: hasMole ? '0 0 15px rgba(234,88,12,0.5)' : 'none'
+   449→          }}>{hasMole ? '🐹' : '🕳️'}</button>
+   450→        ))}
+   451→      </div>
+   452→      {!playing && (
+   453→        <button onClick={startGame} style={{ ...appBtnStyle, background: 'linear-gradient(135deg, #ea580c, #c2410c)' }}>
+   454→          {score > 0 ? 'Play Again' : 'Start Game'}
+   455→        </button>
+   456→      )}
+   457→    </div>
+   458→  )
+   459→}
+   460→
+   461→// Calculator Component
+   462→function CalculatorApp({ onClose }: { onClose: () => void }) {
+   463→  const [display, setDisplay] = useState('0')
+   464→  const [prevValue, setPrevValue] = useState<number | null>(null)
+   465→  const [operator, setOperator] = useState<string | null>(null)
+   466→  const [waitingForOperand, setWaitingForOperand] = useState(false)
+   467→
+   468→  const inputDigit = (digit: string) => {
+   469→    if (waitingForOperand) { setDisplay(digit); setWaitingForOperand(false) }
+   470→    else setDisplay(display === '0' ? digit : display + digit)
+   471→  }
+   472→
+   473→  const inputDot = () => {
+   474→    if (waitingForOperand) { setDisplay('0.'); setWaitingForOperand(false); return }
+   475→    if (!display.includes('.')) setDisplay(display + '.')
+   476→  }
+   477→
+   478→  const clear = () => { setDisplay('0'); setPrevValue(null); setOperator(null) }
+   479→
+   480→  const performOperation = (nextOp: string) => {
+   481→    const inputValue = parseFloat(display)
+   482→    if (prevValue === null) { setPrevValue(inputValue) }
+   483→    else if (operator) {
+   484→      const result = calculate(prevValue, inputValue, operator)
+   485→      setDisplay(String(result))
+   486→      setPrevValue(result)
+   487→    }
+   488→    setWaitingForOperand(true)
+   489→    setOperator(nextOp)
+   490→  }
+   491→
+   492→  const calculate = (a: number, b: number, op: string): number => {
+   493→    switch(op) { case '+': return a + b; case '-': return a - b; case '*': return a * b; case '/': return b !== 0 ? a / b : 0; default: return b }
+   494→  }
+   495→
+   496→  const equals = () => {
+   497→    if (!operator || prevValue === null) return
+   498→    const result = calculate(prevValue, parseFloat(display), operator)
+   499→    setDisplay(String(result))
+   500→    setPrevValue(null)
+   501→    setOperator(null)
+   502→    setWaitingForOperand(true)
+   503→  }
+   504→
+   505→  const btnStyle = (color: string) => ({
+   506→    width: '50px', height: '50px', borderRadius: '12px', border: 'none',
+   507→    background: color, color: '#fff', fontSize: '20px', fontWeight: '600',
+   508→    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+   509→    transition: 'transform 0.1s', userSelect: 'none'
+   510→  })
+   511→
+   512→  return (
+   513→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px', height: '100%' }}>
+   514→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+   515→        <span />
+   516→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+   517→      </div>
+   518→      <div style={{
+   519→        width: '100%', background: '#1e1e2e', borderRadius: '12px', padding: '16px',
+   520→        textAlign: 'right', fontSize: '32px', fontWeight: '300', color: '#fff',
+   521→        minHeight: '50px', wordBreak: 'break-all'
+   522→      }}>{display}</div>
+   523→      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 50px)', gap: '8px' }}>
+   524→        <button onClick={clear} style={btnStyle('#475569')}>C</button>
+   525→        <button onClick={() => setDisplay(display.startsWith('-') ? display.slice(1) : '-' + display)} style={btnStyle('#475569')}>±</button>
+   526→        <button onClick={() => setDisplay(String(parseFloat(display) / 100))} style={btnStyle('#475569')}>%</button>
+   527→        <button onClick={() => performOperation('/')} style={btnStyle('#f59e0b')}>÷</button>
+   528→        {['7','8','9'].map(n => <button key={n} onClick={() => inputDigit(n)} style={btnStyle('#334155')}>{n}</button>)}
+   529→        <button onClick={() => performOperation('*')} style={btnStyle('#f59e0b')}>×</button>
+   530→        {['4','5','6'].map(n => <button key={n} onClick={() => inputDigit(n)} style={btnStyle('#334155')}>{n}</button>)}
+   531→        <button onClick={() => performOperation('-')} style={btnStyle('#f59e0b')}>−</button>
+   532→        {['1','2','3'].map(n => <button key={n} onClick={() => inputDigit(n)} style={btnStyle('#334155')}>{n}</button>)}
+   533→        <button onClick={() => performOperation('+')} style={btnStyle('#f59e0b')}>+</button>
+   534→        <button onClick={() => inputDigit('0')} style={{ ...btnStyle('#334155'), gridColumn: 'span 2', width: '108px' }}>0</button>
+   535→        <button onClick={inputDot} style={btnStyle('#334155')}>.</button>
+   536→        <button onClick={equals} style={btnStyle('#22c55e')}>=</button>
+   537→      </div>
+   538→    </div>
+   539→  )
+   540→}
+   541→
+   542→// Stopwatch Component
+   543→function StopwatchApp({ onClose }: { onClose: () => void }) {
+   544→  const [time, setTime] = useState(0)
+   545→  const [running, setRunning] = useState(false)
+   546→  const [laps, setLaps] = useState<number[]>([])
+   547→  const timerRef = useRef<NodeJS.Timeout>()
+   548→
+   549→  useEffect(() => {
+   550→    if (running) {
+   551→      timerRef.current = setInterval(() => setTime(t => t + 10), 10)
+   552→    } else clearInterval(timerRef.current)
+   553→    return () => clearInterval(timerRef.current)
+   554→  }, [running])
+   555→
+   556→  const formatTime = (ms: number) => {
+   557→    const m = Math.floor(ms / 60000)
+   558→    const s = Math.floor((ms % 60000) / 1000)
+   559→    const cs = Math.floor((ms % 1000) / 10)
+   560→    return `${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}.${cs.toString().padStart(2,'0')}`
+   561→  }
+   562→
+   563→  const lap = () => { if (running) setLaps([...laps, time]) }
+   564→  const reset = () => { setTime(0); setRunning(false); setLaps([]) }
+   565→
+   566→  return (
+   567→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', height: '100%' }}>
+   568→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+   569→        <span />
+   570→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+   571→      </div>
+   572→      <div style={{ fontSize: '42px', fontWeight: '200', fontFamily: 'monospace', color: '#fff', letterSpacing: '2px' }}>
+   573→        {formatTime(time)}
+   574→      </div>
+   575→      <div style={{ display: 'flex', gap: '12px' }}>
+   576→        <button onClick={() => running ? setRunning(false) : setRunning(true)} style={{
+   577→          ...appBtnStyle, background: running ? '#ef4444' : '#22c55e', width: '80px', height: '80px', borderRadius: '50%', fontSize: '14px'
+   578→        }}>{running ? 'Stop' : 'Start'}</button>
+   579→        <button onClick={lap} disabled={!running} style={{
+   580→          ...appBtnStyle, background: '#0ea5e9', opacity: running ? 1 : 0.5, width: '70px', height: '70px', borderRadius: '50%', fontSize: '12px'
+   581→        }}>Lap</button>
+   582→        <button onClick={reset} style={{ ...appBtnStyle, background: '#64748b', width: '60px', height: '60px', borderRadius: '50%', fontSize: '11px' }}>Reset</button>
+   583→      </div>
+   584→      <div style={{ width: '100%', maxHeight: '120px', overflowY: 'auto' }}>
+   585→        {laps.map((l, i) => (
+   586→          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', padding: '6px 12px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
+   587→            <span style={{ color: '#888' }}>Lap {i + 1}</span>
+   588→            <span style={{ fontFamily: 'monospace', color: '#0ea5e9' }}>{formatTime(l)}</span>
+   589→          </div>
+   590→        ))}
+   591→      </div>
+   592→    </div>
+   593→  )
+   594→}
+   595→
+   596→// Notes App
+   597→function NotesApp({ onClose }: { onClose: () => void }) {
+   598→  const [notes, setNotes] = useState<string>('')
+   599→  const [saved, setSaved] = useState<string>('')
+   600→
+   601→  const saveNote = () => { setSaved(notes); alert('Note saved! ✅') }
+   602→
+   603→  return (
+   604→    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '10px' }}>
+   605→      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+   606→        <span style={{ color: '#eab308', fontWeight: 'bold' }}>📝 My Notes</span>
+   607→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+   608→      </div>
+   609→      <textarea value={notes} onChange={e => setNotes(e.target.value)} placeholder="Write your notes here..."
+   610→        style={{
+   611→          flex: 1, background: '#1e1e2e', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px',
+   612→          padding: '16px', color: '#fff', fontSize: '15px', resize: 'none', outline: 'none',
+   613→          lineHeight: '1.6', fontFamily: '-apple-system, sans-serif'
+   614→        }}
+   615→      />
+   616→      <div style={{ display: 'flex', gap: '8px' }}>
+   617→        <button onClick={saveNote} style={{ ...appBtnStyle, background: 'linear-gradient(135deg, #eab308, #ca8a04)', flex: 1 }}>Save Note</button>
+   618→        <button onClick={() => setNotes('')} style={{ ...appBtnStyle, background: '#64748b' }}>Clear</button>
+   619→      </div>
+   620→      {saved && (
+   621→        <div style={{ background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.3)', borderRadius: '8px', padding: '10px' }}>
+   622→          <div style={{ color: '#888', fontSize: '11px', marginBottom: '4px' }}>Last saved:</div>
+   623→          <div style={{ color: '#fff', fontSize: '13px', whiteSpace: 'pre-wrap' }}>{saved}</div>
+   624→        </div>
+   625→      )}
+   626→    </div>
+   627→  )
+   628→}
+   629→
+   630→// Paint App
+   631→function PaintApp({ onClose }: { onClose: () => void }) {
+   632→  const canvasRef = useRef<HTMLCanvasElement>(null)
+   633→  const [drawing, setDrawing] = useState(false)
+   634→  const [color, setColor] = useState('#ffffff')
+   635→  const [brushSize, setBrushSize] = useState(4)
+   636→  const lastPos = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
+   637→
+   638→  useEffect(() => {
+   639→    const canvas = canvasRef.current
+   640→    if (canvas) {
+   641→      canvas.width = canvas.offsetWidth
+   642→      canvas.height = canvas.offsetHeight
+   643→      const ctx = canvas.getContext('2d')
+   644→      if (ctx) ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0, 0, canvas.width, canvas.height)
+   645→    }
+   646→  }, [])
+   647→
+   648→  const getPos = (e: React.TouchEvent | React.MouseEvent) => {
+   649→    const canvas = canvasRef.current!
+   650→    const rect = canvas.getBoundingClientRect()
+   651→    if ('touches' in e) return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top }
+   652→    return { x: e.clientX - rect.left, y: e.clientY - rect.top }
+   653→  }
+   654→
+   655→  const startDraw = (e: React.TouchEvent | React.MouseEvent) => {
+   656→    setDrawing(true)
+   657→    lastPos.current = getPos(e)
+   658→  }
+   659→
+   660→  const draw = (e: React.TouchEvent | React.MouseEvent) => {
+   661→    if (!drawing) return
+   662→    const canvas = canvasRef.current!
+   663→    const ctx = canvas.getContext('2d')!
+   664→    const pos = getPos(e)
+   665→    ctx.strokeStyle = color; ctx.lineWidth = brushSize; ctx.lineCap = 'round'
+   666→    ctx.beginPath(); ctx.moveTo(lastPos.current.x, lastPos.current.y); ctx.lineTo(pos.x, pos.y); ctx.stroke()
+   667→    lastPos.current = pos
+   668→  }
+   669→
+   670→  const stopDraw = () => setDrawing(false)
+   671→  const clearCanvas = () => {
+   672→    const canvas = canvasRef.current!
+   673→    const ctx = canvas.getContext('2d')!
+   674→    ctx.fillStyle = '#1a1a2e'; ctx.fillRect(0, 0, canvas.width, canvas.height)
+   675→  }
+   676→
+   677→  const colors = ['#ffffff', '#ef4444', '#f59e0b', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899']
+   678→
+   679→  return (
+   680→    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', gap: '8px' }}>
+   681→      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+   682→        <span style={{ color: '#ec4899', fontWeight: 'bold' }}>🎨 Paint</span>
+   683→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+   684→      </div>
+   685→      <canvas ref={canvasRef}
+   686→        onMouseDown={startDraw} onMouseMove={draw} onMouseUp={stopDraw} onMouseLeave={stopDraw}
+   687→        onTouchStart={startDraw} onTouchMove={draw} onTouchEnd={stopDraw}
+   688→        style={{ flex: 1, borderRadius: '12px', touchAction: 'none', cursor: 'crosshair' }}
+   689→      />
+   690→      <div style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
+   691→        {colors.map(c => (
+   692→          <button key={c} onClick={() => setColor(c)} style={{
+   693→            width: 28, height: 28, borderRadius: '50%', background: c,
+   694→            border: color === c ? '3px #fff solid' : '2px rgba(255,255,255,0.2) solid', cursor: 'pointer'
+   695→          }} />
+   696→        ))}
+   697→        <input type="range" min="1" max="20" value={brushSize} onChange={e => setBrushSize(+e.target.value)} style={{ width: '80px', accentColor: '#ec4899' }} />
+   698→        <button onClick={clearCanvas} style={{ ...appBtnStyle, background: '#64748b', padding: '6px 12px', fontSize: '11px' }}>Clear</button>
+   699→      </div>
+   700→    </div>
+   701→  )
+   702→}
+   703→
+   704→// Dice Roller
+   705→function DiceApp({ onClose }: { onClose: () => void }) {
+   706→  const [dice, setDice] = useState([1, 1])
+   707→  const [rolling, setRolling] = useState(false)
+   708→  const [history, setHistory] = useState<number[]>([])
+   709→
+   710→  const roll = () => {
+   711→    setRolling(true)
+   712→    let count = 0
+   713→    const interval = setInterval(() => {
+   714→      setDice([Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1])
+   715→      count++
+   716→      if (count > 15) {
+   717→        clearInterval(interval)
+   718→        const final = [Math.floor(Math.random() * 6) + 1, Math.floor(Math.random() * 6) + 1]
+   719→        setDice(final)
+   720→        setHistory(h => [...h.slice(-9), final[0] + final[1]])
+   721→        setRolling(false)
+   722→      }
+   723→    }, 60)
+   724→  }
+   725→
+   726→  const diceFace = (n: number) => {
+   727→    const dots: Record<number, string[]> = { 1: ['center'], 2: ['tl','br'], 3: ['tl','center','br'], 4: ['tl','tr','bl','br'], 5: ['tl','tr','center','bl','br'], 6: ['tl','tr','ml','mr','bl','br'] }
+   728→    const pos: Record<string, string> = { tl: 'top:8px;left:8px', tr: 'top:8px;right:8px', bl: 'bottom:8px;left:8px', br: 'bottom:8px;right:8px', center: 'top:50%;left:50%;transform:translate(-50%,-50%)', ml: 'top:50%;left:8px;transform:translateY(-50%)', mr: 'top:50%;right:8px;transform:translateY(-50%)' }
+   729→    return dots[n].map((d, i) => <div key={i} style={{ position: 'absolute', width: '8px', height: '8px', background: '#fff', borderRadius: '50%', ...{ [pos[d]]: '' } as React.CSSProperties }} />)
+   730→  }
+   731→
+   732→  return (
+   733→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', height: '100%', justifyContent: 'center' }}>
+   734→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+   735→        <span style={{ color: '#f43f5e', fontWeight: 'bold' }}>Total: {dice[0] + dice[1]}</span>
+   736→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+   737→      </div>
+   738→      <div style={{ display: 'flex', gap: '20px' }}>
+   739→        {[dice[0], dice[1]].map((d, i) => (
+   740→          <div key={i} style={{
+   741→            width: '70px', height: '70px', background: rolling ? '#333' : '#fff',
+   742→            borderRadius: '14px', position: 'relative', transform: rolling ? `rotate(${Math.random()*30-15}deg)` : 'rotate(0deg)',
+   743→            transition: 'transform 0.1s', boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
+   744→          }}>
+   745→            <div style={{ position: 'absolute', inset: 0, background: '#1e40af', borderRadius: '14px' }} />
+   746→            {diceFace(d)}
+   747→          </div>
+   748→        ))}
+   749→      </div>
+   750→      <button onClick={roll} disabled={rolling} style={{ ...appBtnStyle, background: 'linear-gradient(135deg, #f43f5e, #e11d48)', width: '140px', fontSize: '18px' }}>
+   751→        {rolling ? '🎲...' : 'Roll!'}
+   752→      </button>
+   753→      {history.length > 0 && (
+   754→        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap', justifyContent: 'center' }}>
+   755→          {history.map((h, i) => <span key={i} style={{ background: 'rgba(244,63,94,0.2)', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', color: '#f43f5e' }}>{h}</span>)}
+   756→        </div>
+   757→      )}
+   758→    </div>
+   759→  )
+   760→}
+   761→
+   762→// Coin Flip App
+   763→function CoinFlipApp({ onClose }: { onClose: () => void }) {
+   764→  const [result, setResult] = useState<'heads' | 'tails' | null>(null)
+   765→  const [flipping, setFlipping] = useState(false)
+   766→  const [headsCount, setHeadsCount] = useState(0)
+   767→  const [tailsCount, setTailsCount] = useState(0)
+   768→
+   769→  const flip = () => {
+   770→    setFlipping(true)
+   771→    setResult(null)
+   772→    setTimeout(() => {
+   773→      const res = Math.random() < 0.5 ? 'heads' : 'tails'
+   774→      setResult(res)
+   775→      if (res === 'heads') setHeadsCount(h => h + 1)
+   776→      else setTailsCount(t => t + 1)
+   777→      setFlipping(false)
+   778→    }, 1500)
+   779→  }
+   780→
+   781→  return (
+   782→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', height: '100%', justifyContent: 'center' }}>
+   783→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+   784→        <span style={{ color: '#d97706', fontWeight: 'bold' }}>🪙 Coin Flip</span>
+   785→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+   786→      </div>
+   787→      <div style={{
+   788→        width: '120px', height: '120px', borderRadius: '50%',
+   789→        background: flipping ? 'linear-gradient(135deg, #d97706, #fbbf24)' : result === 'heads' ? 'linear-gradient(135deg, #fbbf24, #f59e0b)' : 'linear-gradient(135deg, #78716c, #57534e)',
+   790→        display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '48px',
+   791→        animation: flipping ? 'coinFlip 0.2s ease-in-out infinite alternate' : 'none',
+   792→        boxShadow: '0 8px 30px rgba(0,0,0,0.3)'
+   793→      }}>
+   794→        {flipping ? '?' : result === 'heads' ? '👑' : result === 'tails' ? '🦅' : '?'}
+   795→      </div>
+   796→      {result && !flipping && (
+   797→        <div style={{ fontSize: '24px', fontWeight: 'bold', color: result === 'heads' ? '#fbbf24' : '#a8a29e' }}>
+   798→          {result === 'heads' ? 'HEADS!' : 'TAILS!'}
+   799→        </div>
+   800→      )}
+   801→      <button onClick={flip} disabled={flipping} style={{ ...appBtnStyle, background: 'linear-gradient(135deg, #d97706, #b45309)', width: '140px' }}>
+   802→        {flipping ? 'Flipping...' : 'Flip Coin!'}
+   803→      </button>
+   804→      <div style={{ display: 'flex', gap: '20px', fontSize: '14px' }}>
+   805→        <span style={{ color: '#fbbf24' }}>👑 Heads: {headsCount}</span>
+   806→        <span style={{ color: '#a8a29e' }}>🦅 Tails: {tailsCount}</span>
+   807→      </div>
+   808→      <style>{`@keyframes coinFlip { from { transform: rotateY(0deg); } to { transform: rotateY(180deg); } }`}</style>
+   809→    </div>
+   810→  )
+   811→}
+   812→
+   813→// Magic 8 Ball
+   814→function Magic8BallApp({ onClose }: { onClose: () => void }) {
+   815→  const [answer, setAnswer] = useState('')
+   816→  const [shaking, setShaking] = useState(false)
+   817→  const [questionCount, setQuestionCount] = useState(0)
+   818→
+   819→  const answers = [
+   820→    'It is certain', 'It is decidedly so', 'Without a doubt', 'Yes definitely', 'You may rely on it',
+   821→    'As I see it, yes', 'Most likely', 'Outlook good', 'Yes', 'Signs point to yes',
+   822→    'Reply hazy, try again', 'Ask again later', 'Better not tell you now', 'Cannot predict now', 'Concentrate and ask again',
+   823→    'Don\'t count on it', 'My reply is no', 'My sources say no', 'Outlook not so good', 'Very doubtful'
+   824→  ]
+   825→
+   826→  const shake = () => {
+   827→    setShaking(true)
+   828→    setAnswer('')
+   829→    setTimeout(() => {
+   830→      setAnswer(answers[Math.floor(Math.random() * answers.length)])
+   831→      setShaking(false)
+   832→      setQuestionCount(q => q + 1)
+   833→    }, 1500)
+   834→  }
+   835→
+   836→  return (
+   837→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '20px', height: '100%', justifyContent: 'center' }}>
+   838→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+   839→        <span style={{ color: '#6366f1', fontWeight: 'bold' }}>🔮 Magic 8 Ball</span>
+   840→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+   841→      </div>
+   842→      <div style={{
+   843→        width: '140px', height: '140px', borderRadius: '50%',
+   844→        background: 'linear-gradient(180deg, #1e1b4b 0%, #312e81 100%)',
+   845→        display: 'flex', alignItems: 'center', justifyContent: 'center',
+   846→        animation: shaking ? 'shake8ball 0.15s ease-in-out infinite' : 'none',
+   847→        boxShadow: '0 10px 40px rgba(99,102,241,0.4)'
+   848→      }}>
+   849→        <div style={{
+   850→          width: '90px', height: '90px', borderRadius: '50%',
+   851→          background: shaking ? '#1e1b4b' : '#000',
+   852→          display: 'flex', alignItems: 'center', justifyContent: 'center',
+   853→          textAlign: 'center', padding: '12px', color: '#6366f1', fontSize: '13px', fontWeight: 'bold'
+   854→        }}>
+   855→          {shaking ? '...' : answer || 'Ask me anything!'}
+   856→        </div>
+   857→      </div>
+   858→      <button onClick={shake} disabled={shaking} style={{ ...appBtnStyle, background: 'linear-gradient(135deg, #6366f1, #4f46e5)', width: '140px' }}>
+   859→        {shaking ? '🔮 Shaking...' : 'Shake!'}
+   860→      </button>
+   861→      <div style={{ color: '#888', fontSize: '12px' }}>Questions asked: {questionCount}</div>
+   862→      <style>{`@keyframes shake8ball { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }`}</style>
+   863→    </div>
+   864→  )
+   865→}
+   866→
+   867→// Jokes App
+   868→function JokesApp({ onClose }: { onClose: () => void }) {
+   869→  const [joke, setJoke] = useState({ setup: '', punchline: '', showPunchline: false })
+   870→
+   871→  const jokes = [
+   872→    { setup: 'Why do programmers prefer dark mode?', punchline: 'Because light attracts bugs!' },
+   873→    { setup: 'What do you call a fake noodle?', punchline: 'An impasta!' },
+   874→    { setup: 'Why did the scarecrow win an award?', punchline: 'He was outstanding in his field!' },
+   875→    { setup: 'What do you call a bear with no teeth?', punchline: 'A gummy bear!' },
+   876→    { setup: 'Why don\'t scientists trust atoms?', punchline: 'Because they make up everything!' },
+   877→    { setup: 'What did the ocean say to the beach?', punchline: 'Nothing, it just waved.' },
+   878→    { setup: 'Why did the math book look sad?', punchline: 'Because it had too many problems.' },
+   879→    { setup: 'What do you call a can opener that doesn\'t work?', punchline: 'A can\'t opener!' },
+   880→    { setup: 'Why don\'t eggs tell jokes?', punchline: 'They\'d crack each other up!' },
+   881→    { setup: 'What did the snail say while riding on the turtle\'s back?', punchline: 'Wheeeee!' },
+   882→  ]
+   883→
+   884→  const tellJoke = () => {
+   885→    const j = jokes[Math.floor(Math.random() * jokes.length)]
+   886→    setJoke({ ...j, showPunchline: false })
+   887→  }
+   888→
+   889→  return (
+   890→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', height: '100%', justifyContent: 'center', padding: '16px' }}>
+   891→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+   892→        <span style={{ color: '#14b8a6', fontWeight: 'bold' }}>😂 Joke Generator</span>
+   893→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+   894→      </div>
+   895→      {joke.setup ? (
+   896→        <>
+   897→          <div style={{
+   898→            background: 'rgba(20,184,166,0.1)', border: '1px solid rgba(20,184,166,0.3)',
+   899→            borderRadius: '16px', padding: '24px 20px', textAlign: 'center', width: '100%'
+   900→          }}>
+   901→            <div style={{ fontSize: '18px', color: '#fff', marginBottom: '12px' }}>{joke.setup}</div>
+   902→            {joke.showPunchline ? (
+   903→              <div style={{ fontSize: '20px', color: '#14b8a6', fontWeight: 'bold', animation: 'fadeIn 0.5s' }}>{joke.punchline}</div>
+   904→            ) : (
+   905→              <button onClick={() => setJoke({ ...joke, showPunchline: true })} style={{ ...appBtnStyle, background: 'linear-gradient(135deg, #14b8a6, #0d9488)', fontSize: '13px' }}>
+   906→                Reveal Punchline 😆
+   907→              </button>
+   908→            )}
+   909→          </div>
+   910→          <button onClick={tellJoke} style={{ ...appBtnStyle, background: '#64748b' }}>Another One! 🔄</button>
+   911→        </>
+   912→      ) : (
+   913→        <button onClick={tellJoke} style={{ ...appBtnStyle, background: 'linear-gradient(135deg, #14b8a6, #0d9488)', width: '160px', fontSize: '18px' }}>
+   914→          Tell Me a Joke! 😄
+   915→        </button>
+   916→      )}
+   917→    </div>
+   918→  )
+   919→}
+   920→
+   921→// Piano App
+   922→function PianoApp({ onClose }: { onClose: () => void }) {
+   923→  const audioContext = useRef<AudioContext | null>(null)
+   924→  const [activeKey, setActiveKey] = useState<string | null>(null)
+   925→
+   926→  const playNote = (freq: number, key: string) => {
+   927→    setActiveKey(key)
+   928→    if (!audioContext.current) audioContext.current = new AudioContext()
+   929→    const osc = audioContext.current.createOscillator()
+   930→    const gain = audioContext.current.createGain()
+   931→    osc.connect(gain); gain.connect(audioContext.current.destination)
+   932→    osc.frequency.value = freq; osc.type = 'sine'
+   933→    gain.gain.setValueAtTime(0.3, audioContext.current.currentTime)
+   934→    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.current.currentTime + 0.5)
+   935→    osc.start(); osc.stop(audioContext.current.currentTime + 0.5)
+   936→    setTimeout(() => setActiveKey(null), 200)
+   937→  }
+   938→
+   939→  const keys = [
+   940→    { note: 'C', freq: 261.63, black: false },
+   941→    { note: 'C#', freq: 277.18, black: true },
+   942→    { note: 'D', freq: 293.66, black: false },
+   943→    { note: 'D#', freq: 311.13, black: true },
+   944→    { note: 'E', freq: 329.63, black: false },
+   945→    { note: 'F', freq: 349.23, black: false },
+   946→    { note: 'F#', freq: 369.99, black: true },
+   947→    { note: 'G', freq: 392.00, black: false },
+   948→    { note: 'G#', freq: 415.30, black: true },
+   949→    { note: 'A', freq: 440.00, black: false },
+   950→    { note: 'A#', freq: 466.16, black: true },
+   951→    { note: 'B', freq: 493.88, black: false },
+   952→  ]
+   953→
+   954→  return (
+   955→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', height: '100%', justifyContent: 'flex-end', paddingBottom: '20px' }}>
+   956→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+   957→        <span style={{ color: '#1d4ed8', fontWeight: 'bold' }}>🎹 Piano</span>
+   958→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+   959→      </div>
+   960→      <div style={{ position: 'relative', display: 'flex', height: '150px' }}>
+   961→        {keys.filter(k => !k.black).map(k => (
+   962→          <button key={k.note} onMouseDown={() => playNote(k.freq, k.note)} onTouchStart={() => playNote(k.freq, k.note)} style={{
+   963→            width: '38px', height: '150px', background: activeKey === k.note ? '#ddd' : '#fff',
+   964→            border: '1px solid #ccc', borderRadius: '0 0 6px 6px', cursor: 'pointer',
+   965→            marginRight: '2px', boxShadow: activeKey === k.note ? 'inset 0 3px 8px rgba(0,0,0,0.2)' : '0 4px 6px rgba(0,0,0,0.2)'
+   966→          }}>
+   967→            <span style={{ position: 'absolute', bottom: '8px', left: '50%', transform: 'translateX(-50%)', fontSize: '11px', color: '#999' }}>{k.note}</span>
+   968→          </button>
+   969→        ))}
+   970→        {keys.filter(k => k.black).map((k, i) => (
+   971→          <button key={k.note} onMouseDown={() => playNote(k.freq, k.note)} onTouchStart={() => playNote(k.freq, k.note)} style={{
+   972→            position: 'absolute', width: '24px', height: '95px',
+   973→            background: activeKey === k.note ? '#555' : '#333',
+   974→            border: '1px solid #000', borderRadius: '0 0 4px 4px', cursor: 'pointer',
+   975→            left: `${26 + i * 40}px`, zIndex: 2, boxShadow: '0 3px 5px rgba(0,0,0,0.4)'
+   976→          }} />
+   977→        ))}
+   978→      </div>
+   979→      <div style={{ color: '#888', fontSize: '11px' }}>Tap the keys to play music! 🎵</div>
+   980→    </div>
+   981→  )
+   982→}
+   983→
+   984→// Color Generator App
+   985→function ColorGenApp({ onClose }: { onClose: () => void }) {
+   986→  const [color, setColor] = useState('#6366f1')
+   987→  const [history, setHistory] = useState<string[]>([])
+   988→  const [copied, setCopied] = useState(false)
+   989→
+   990→  const generateColor = () => {
+   991→    const newColor = '#' + Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')
+   992→    setColor(newColor)
+   993→    setHistory(h => [newColor, ...h.slice(8)])
+   994→  }
+   995→
+   996→  const copyColor = () => {
+   997→    navigator.clipboard.writeText(color)
+   998→    setCopied(true)
+   999→    setTimeout(() => setCopied(false), 1500)
+  1000→  }
+  1001→
+  1002→  return (
+  1003→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', height: '100%', justifyContent: 'center' }}>
+  1004→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+  1005→        <span style={{ color: '#f472b6', fontWeight: 'bold' }}>🌈 Color Gen</span>
+  1006→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+  1007→      </div>
+  1008→      <div style={{
+  1009→        width: '160px', height: '160px', borderRadius: '24px', background: color,
+  1010→        boxShadow: `0 10px 40px ${color}66`, transition: 'background 0.3s'
+  1011→      }} />
+  1012→      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+  1013→        <span style={{ fontSize: '20px', fontWeight: 'bold', fontFamily: 'monospace', color: '#fff' }}>{color.toUpperCase()}</span>
+  1014→        <button onClick={copyColor} style={{ ...appBtnStyle, background: copied ? '#22c55e' : '#64748b', padding: '8px 14px', fontSize: '12px' }}>
+  1015→          {copied ? 'Copied! ✓' : 'Copy'}
+  1016→        </button>
+  1017→      </div>
+  1018→      <button onClick={generateColor} style={{ ...appBtnStyle, background: 'linear-gradient(135deg, #f472b6, #ec4899)', width: '140px' }}>
+  1019→        Generate! 🎨
+  1020→      </button>
+  1021→      {history.length > 0 && (
+  1022→        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', justifyContent: 'center' }}>
+  1023→          {history.map((h, i) => (
+  1024→            <button key={i} onClick={() => setColor(h)} style={{
+  1025→              width: '32px', height: '32px', borderRadius: '8px', background: h, border: '2px solid rgba(255,255,255,0.2)', cursor: 'pointer'
+  1026→            }} />
+  1027→          ))}
+  1028→        </div>
+  1029→      )}
+  1030→    </div>
+  1031→  )
+  1032→}
+  1033→
+  1034→// Age Calculator App
+  1035→function AgeCalcApp({ onClose }: { onClose: () => void }) {
+  1036→  const [birthDate, setBirthDate] = useState('')
+  1037→  const [result, setResult] = useState<{ years: number; months: number; days: number; nextBirthday: number } | null>(null)
+  1038→
+  1039→  const calculateAge = () => {
+  1040→    if (!birthDate) return
+  1041→    const birth = new Date(birthDate)
+  1042→    const today = new Date()
+  1043→    let years = today.getFullYear() - birth.getFullYear()
+  1044→    let months = today.getMonth() - birth.getMonth()
+  1045→    let days = today.getDate() - birth.getDate()
+  1046→    
+  1047→    if (days < 0) { months--; days += new Date(today.getFullYear(), today.getMonth(), 0).getDate() }
+  1048→    if (months < 0) { years--; months += 12 }
+  1049→    
+  1050→    const nextBirth = new Date(today.getFullYear(), birth.getMonth(), birth.getDate())
+  1051→    if (nextBirth < today) nextBirth.setFullYear(nextBirth.getFullYear() + 1)
+  1052→    const daysUntil = Math.ceil((nextBirth.getTime() - today.getTime()) / (1000*60*60*24))
+  1053→    
+  1054→    setResult({ years, months, days, nextBirthday: daysUntil })
+  1055→  }
+  1056→
+  1057→  return (
+  1058→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '16px', height: '100%', justifyContent: 'center', padding: '16px' }}>
+  1059→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+  1060→        <span style={{ color: '#fb923c', fontWeight: 'bold' }}>🎂 Age Calculator</span>
+  1061→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+  1062→      </div>
+  1063→      <input type="date" value={birthDate} onChange={e => setBirthDate(e.target.value)} max={new Date().toISOString().split('T')[0]} style={{
+  1064→        background: '#1e1e2e', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px',
+  1065→        padding: '14px 18px', color: '#fff', fontSize: '16px', outline: 'none', width: '100%'
+  1066→      }} />
+  1067→      <button onClick={calculateAge} style={{ ...appBtnStyle, background: 'linear-gradient(135deg, #fb923c, #f97316)', width: '100%' }}>
+  1068→        Calculate My Age! 🎉
+  1069→      </button>
+  1070→      {result && (
+  1071→        <div style={{
+  1072→          background: 'rgba(251,146,60,0.1)', border: '1px solid rgba(251,146,60,0.3)',
+  1073→          borderRadius: '16px', padding: '20px', width: '100%', textAlign: 'center'
+  1074→        }}>
+  1075→          <div style={{ fontSize: '36px', fontWeight: 'bold', color: '#fb923c' }}>{result.years}</div>
+  1076→          <div style={{ color: '#fff', marginBottom: '12px' }}>years old</div>
+  1077→          <div style={{ display: 'flex', justifyContent: 'space-around', color: '#ccc', fontSize: '14px' }}>
+  1078→            <span>{result.months} months</span>
+  1079→            <span>{result.days} days</span>
+  1080→          </div>
+  1081→          <div style={{ marginTop: '12px', color: '#22c55e', fontSize: '13px' }}>
+  1082→            🎂 Next birthday in {result.nextBirthday} days!
+  1083→          </div>
+  1084→        </div>
+  1085→      )}
+  1086→    </div>
+  1087→  )
+  1088→}
+  1089→
+  1090→// Tip Calculator App
+  1091→function TipCalcApp({ onClose }: { onClose: () => void }) {
+  1092→  const [bill, setBill] = useState('')
+  1093→  const [tipPercent, setTipPercent] = useState(15)
+  1094→  const [split, setSplit] = useState(1)
+  1095→
+  1096→  const billAmount = parseFloat(bill) || 0
+  1097→  const tipAmount = billAmount * (tipPercent / 100)
+  1098→  const total = billAmount + tipAmount
+  1099→  const perPerson = total / split
+  1100→
+  1101→  return (
+  1102→    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '14px', height: '100%', padding: '16px' }}>
+  1103→      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+  1104→        <span style={{ color: '#059669', fontWeight: 'bold' }}>💰 Tip Calculator</span>
+  1105→        <button onClick={onClose} style={closeBtnStyle}>✕</button>
+  1106→      </div>
+  1107→      
+  1108→      <div style={{ width: '100%' }}>
+  1109→        <label style={{ color: '#888', fontSize: '12px', display: 'block', marginBottom: '6px' }}>Bill Amount ($)</label>
+  1110→        <input type="number" value={bill} onChange={e => setBill(e.target.value)} placeholder="0.00" style={inputStyle} />
+  1111→      </div>
+  1112→
+  1113→      <div style={{ width: '100%' }}>
+  1114→        <label style={{ color: '#888', fontSize: '12px', display: 'block', marginBottom: '6px' }}>Tip: {tipPercent}%</label>
+  1115→        <input type="range" min="0" max="50" value={tipPercent} onChange={e => setTipPercent(+e.target.value)} style={{ width: '100%', accentColor: '#059669' }} />
+  1116→        <div style={{ display: 'flex', justifyContent: 'space-between', color: '#666', fontSize: '11px' }}>
+  1117→          {[10, 15, 20, 25].map(p => (
+  1118→            <button key={p} onClick={() => setTipPercent(p)} style={{
+  1119→              background: tipPercent === p ? '#059669' : 'transparent', color: tipPercent === p ? '#fff' : '#666',
+  1120→              border: '1px solid #333', borderRadius: '6px', padding: '4px 10px', fontSize: '11px', cursor: 'pointer'
+  1121→            }}>{p}%</button>
+  1122→          ))}
+  1123→        </div>
+  1124→      </div>
+  1125→
+  1126→      <div style={{ width: '100%' }}>
+  1127→        <label style={{ color: '#888', fontSize: '12px', display: 'block', marginBottom: '6px' }}>Split: {split} person{split > 1 ? 's' : ''}</label>
+  1128→        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+  1129→          <button onClick={() => setSplit(Math.max(1, split - 1))} style={counterBtnStyle}>−</button>
+  1130→          <span style={{ color: '#fff', fontSize: '18px', minWidth: '30px', textAlign: 'center' }}>{split}</span>
+  1131→          <button onClick={() => setSplit(split + 1)} style={counterBtnStyle}>+</button>
+  1132→        </div>
+  1133→      </div>
+  1134→
+  1135→      <div style={{
+  1136→        background: 'rgba(5,150,105,0.1)', border: '1px solid rgba(5,150,105,0.3)',
+  1137→        borderRadius: '16px', padding: '16px', width: '100%'
+  1138→      }}>
+  1139→        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+  1140→          <span style={{ color: '#888' }}>Tip Amount:</span>
+  1141→          <span style={{ color: '#059669', fontWeight: 'bold' }}>${tipAmount.toFixed(2)}</span>
+  1142→        </div>
+  1143→        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+  1144→          <span style={{ color: '#888' }}>Total:</span>
+  1145→          <span style={{ color: '#fff', fontWeight: 'bold' }}>${total.toFixed(2)}</span>
+  1146→        </div>
+  1147→        <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', paddingTop: '8px', display: 'flex', justifyContent: 'space-between' }}>
+  1148→          <span style={{ color: '#888' }}>Per Person:</span>
+  1149→          <span style={{ color: '#22c55e', fontWeight: 'bold', fontSize: '18px' }}>${perPerson.toFixed(2)}</span>
+  1150→        </div>
+  1151→      </div>
+  1152→    </div>
+  1153→  )
+  1154→}
+  1155→
+  1156→// Shared styles
+  1157→const closeBtnStyle: React.CSSProperties = {
+  1158→  background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff',
+  1159→  width: '28px', height: '28px', borderRadius: '50%', cursor: 'pointer',
+  1160→  fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center'
+  1161→}
+  1162→
+  1163→const appBtnStyle: React.CSSProperties = {
+  1164→  background: 'linear-gradient(135deg, #6366f1, #4f46e5)', border: 'none', color: '#fff',
+  1165→  padding: '12px 24px', borderRadius: '12px', cursor: 'pointer', fontSize: '14px',
+  1166→  fontWeight: '600', transition: 'transform 0.15s'
+  1167→}
+  1168→
+  1169→const dpadStyle: React.CSSProperties = {
+  1170→  width: 40, height: 40, background: '#333', border: '1px solid #555',
+  1171→  borderRadius: '8px', color: '#fff', fontSize: '18px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+  1172→}
+  1173→
+  1174→const arrowBtnStyle: React.CSSProperties = {
+  1175→  width: 40, height: 40, background: '#f59e0b', border: 'none', borderRadius: '8px',
+  1176→  color: '#fff', fontSize: '18px', cursor: 'pointer', fontWeight: 'bold'
+  1177→}
+  1178→
+  1179→const inputStyle: React.CSSProperties = {
+  1180→  background: '#1e1e2e', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px',
+  1181→  padding: '14px 18px', color: '#fff', fontSize: '18px', outline: 'none', width: '100%', boxSizing: 'border-box'
+  1182→}
+  1183→
+  1184→const counterBtnStyle: React.CSSProperties = {
+  1185→  width: 36, height: 36, background: '#059669', border: 'none', borderRadius: '8px',
+  1186→  color: '#fff', fontSize: '20px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+  1187→}
+  1188→
+  1189→// Main Home Component
+  1190→// Pre-generate wallpaper data to avoid hydration mismatch
+  1191→const generateStars = (count: number, maxYPercent: number) => 
+  1192→  Array.from({ length: count }, (_, i) => ({
+  1193→    id: i,
+  1194→    top: (Math.sin(i * 12.9898 + 78.233) * 43758.5453 % 1) * maxYPercent,
+  1195→    left: (Math.sin(i * 93.989 + 28.233) * 23421.6453 % 1) * 100,
+  1196→    size: ((Math.sin(i * 45.123) * 12345.6789 % 1) * 2 + 1),
+  1197→    opacity: ((Math.sin(i * 67.456) * 34567.8901 % 1) * 0.5 + 0.3),
+  1198→    delay: ((Math.sin(i * 23.789) * 15678.9012 % 1) * 2),
+  1199→    duration: ((Math.sin(i * 89.012) * 27890.1234 % 1) * 2 + 2)
+  1200→  }))
+  1201→
+  1202→const generateTrees = (count: number) =>
+  1203→  Array.from({ length: count }, (_, i) => ({
+  1204→    id: i,
+  1205→    left: i * 8 + ((Math.sin(i * 34.567) * 14567.8901 % 1) * 4),
+  1206→    width: ((Math.sin(i * 56.789) * 25678.9012 % 1) * 12 + 6),
+  1207→    height: ((Math.sin(i * 78.901) * 36789.0123 % 1) * 25 + 15),
+  1208→    opacity: ((Math.sin(i * 90.123) * 47890.1234 % 1) * 0.5 + 0.5)
+  1209→  }))
+  1210→
+  1211→// Pre-computed wallpaper data (deterministic based on index)
+  1212→const LOCK_STARS = generateStars(30, 50)
+  1213→const HOME_STARS = generateStars(40, 55)
+  1214→const HOME_TREES = generateTrees(12)
+  1215→
+  1216→// Combine all apps - Links first, then fun apps (for pagination)
+  1217→interface AllApp {
+  1218→  id: string
+  1219→  name: string
+  1220→  icon: string
+  1221→  gradient: string
+  1222→  isLink: boolean
+  1223→  url?: string
+  1224→}
+  1225→
+  1226→const ALL_APPS: AllApp[] = [
+  1227→  // 🔗 LINK APPS FIRST (Page 1 - first 6 slots)
+  1228→  { id: 'videos', name: 'My Videos', icon: '🎬', gradient: 'linear-gradient(135deg, #FF6B6B 0%, #EE5A5A 100%)', isLink: true, url: 'https://youtube.com/@YOUR_CHANNEL_1' },
+  1229→  { id: 'tutorials', name: 'Tutorials', icon: '📺', gradient: 'linear-gradient(135deg, #FF9F43 0%, #EE8E32 100%)', isLink: true, url: 'https://youtube.com/@YOUR_CHANNEL_2' },
+  1230→  { id: 'gaming', name: 'Gaming', icon: '🎮', gradient: 'linear-gradient(135deg, #A55EEA 0%, #944DE0 100%)', isLink: true, url: 'https://youtube.com/@YOUR_CHANNEL_3' },
+  1231→  { id: 'spotify', name: 'Playlist', icon: '🎵', gradient: 'linear-gradient(135deg, #1DB954 0%, #19AA4A 100%)', isLink: true, url: 'https://open.spotify.com/playlist/YOUR_PLAYLIST_ID' },
+  1232→  { id: 'instagram', name: 'Instagram', icon: '📸', gradient: 'linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%)', isLink: true, url: 'https://instagram.com/YOUR_USERNAME' },
+  1233→  { id: 'email', name: 'Contact', icon: '✉️', gradient: 'linear-gradient(135deg, #58A7E5 0%, #4790D4 100%)', isLink: true, url: 'mailto:your.email@example.com' },
+  1234→  
+  1235→  // 🎮 GAMES (fill rest of page 1 + more pages)
+  1236→  { id: 'snake', name: 'Snake', icon: '🐍', gradient: 'linear-gradient(135deg, #22c55e 0%, #16a34a 100%)', isLink: false },
+  1237→  { id: 'tictactoe', name: 'Tic Tac Toe', icon: '⭕', gradient: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)', isLink: false },
+  1238→  { id: 'memory', name: 'Memory', icon: '🧠', gradient: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)', isLink: false },
+  1239→  { id: 'puzzle2048', name: '2048', icon: '🔢', gradient: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)', isLink: false },
+  1240→  { id: 'whackamole', name: 'Whack!', icon: '🔨', gradient: 'linear-gradient(135deg, #ea580c 0%, #c2410c 100%)', isLink: false },
+  1241→  
+  1242→  // 🛠️ TOOLS
+  1243→  { id: 'calculator', name: 'Calculator', icon: '🧮', gradient: 'linear-gradient(135deg, #64748b 0%, #475569 100%)', isLink: false },
+  1244→  { id: 'stopwatch', name: 'Stopwatch', icon: '⏱️', gradient: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)', isLink: false },
+  1245→  { id: 'notes', name: 'Notes', icon: '📝', gradient: 'linear-gradient(135deg, #eab308 0%, #ca8a04 100%)', isLink: false },
+  1246→  { id: 'paint', name: 'Paint', icon: '🎨', gradient: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)', isLink: false },
+  1247→  
+  1248→  // 🎉 FUN APPS
+  1249→  { id: 'dice', name: 'Dice', icon: '🎲', gradient: 'linear-gradient(135deg, #f43f5e 0%, #e11d48 100%)', isLink: false },
+  1250→  { id: 'coinflip', name: 'Coin Flip', icon: '🪙', gradient: 'linear-gradient(135deg, #d97706 0%, #b45309 100%)', isLink: false },
+  1251→  { id: 'magic8ball', name: 'Magic 8', icon: '🔮', gradient: 'linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)', isLink: false },
+  1252→  { id: 'jokes', name: 'Jokes', icon: '😂', gradient: 'linear-gradient(135deg, #14b8a6 0%, #0d9488 100%)', isLink: false },
+  1253→  { id: 'piano', name: 'Piano', icon: '🎹', gradient: 'linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%)', isLink: false },
+  1254→  { id: 'colorgen', name: 'Colors', icon: '🌈', gradient: 'linear-gradient(135deg, #f472b6 0%, #ec4899 100%)', isLink: false },
+  1255→  { id: 'agecalc', name: 'My Age', icon: '🎂', gradient: 'linear-gradient(135deg, #fb923c 0%, #f97316 100%)', isLink: false },
+  1256→  { id: 'tipcalc', name: 'Tip Calc', icon: '💰', gradient: 'linear-gradient(135deg, #059669 0%, #047857 100%)', isLink: false },
+  1257→]
+  1258→
+  1259→// Split into pages of 9 apps each (3x3 grid)
+  1260→const APPS_PER_PAGE = 9
+  1261→const TOTAL_PAGES = Math.ceil(ALL_APPS.length / APPS_PER_PAGE)
+  1262→
+  1263→export default function Home() {
+  1264→  const [bootPhase, setBootPhase] = useState<BootPhase>('off')
+  1265→  const [currentTime, setCurrentTime] = useState('')
+  1266→  const [selectedApp, setSelectedApp] = useState<number | null>(null)
+  1267→  const [bootProgress, setBootProgress] = useState(0)
+  1268→  const [showUnlockHint, setShowUnlockHint] = useState(false)
+  1269→  const [openApp, setOpenApp] = useState<OpenApp>(null)
+  1270→  const [mounted, setMounted] = useState(false)
+  1271→  const [currentPage, setCurrentPage] = useState(0)
+  1272→  const [touchStart, setTouchStart] = useState<number | null>(null)
+  1273→  const [touchEnd, setTouchEnd] = useState<number | null>(null)
+  1274→  
+  1275→  // Set mounted state to true after first render (for client-only features)
+  1276→  // Using requestAnimationFrame to avoid direct setState in effect
+  1277→  useEffect(() => {
+  1278→    const rafId = requestAnimationFrame(() => setMounted(true))
+  1279→    return () => cancelAnimationFrame(rafId)
+  1280→  }, [])
+  1281→  
+  1282→  // Clock update
+  1283→  useEffect(() => {
+  1284→    if (!mounted) return
+  1285→    const updateTime = () => {
+  1286→      const now = new Date()
+  1287→      const hours = now.getHours().toString().padStart(2, '0')
+  1288→      const minutes = now.getMinutes().toString().padStart(2, '0')
+  1289→      setCurrentTime(`${hours}:${minutes}`)
+  1290→    }
+  1291→    updateTime()
+  1292→    const interval = setInterval(updateTime, 1000)
+  1293→    return () => clearInterval(interval)
+  1294→  }, [mounted])
+  1295→
+  1296→  // Boot sequence - Multi-phase animation
+  1297→  useEffect(() => {
+  1298→    const logoTimer = setTimeout(() => setBootPhase('logo'), 500)
+  1299→    const loadingTimer = setTimeout(() => setBootPhase('loading'), 2000)
+  1300→    const helloTimer = setTimeout(() => setBootPhase('hello'), 4000)
+  1301→    const lockTimer = setTimeout(() => setBootPhase('lock'), 5500)
+  1302→    
+  1303→    return () => {
+  1304→      clearTimeout(logoTimer)
+  1305→      clearTimeout(loadingTimer)
+  1306→      clearTimeout(helloTimer)
+  1307→      clearTimeout(lockTimer)
+  1308→    }
+  1309→  }, [])
+  1310→
+  1311→  // Simulate boot progress during loading phase
+  1312→  useEffect(() => {
+  1313→    if (bootPhase === 'loading') {
+  1314→      const interval = setInterval(() => {
+  1315→        setBootProgress(prev => {
+  1316→          if (prev >= 100) { clearInterval(interval); return 100 }
+  1317→          if (prev === 0) return 1 // Start from 1 on first tick
+  1318→          return prev + Math.random() * 15 + 5
+  1319→        })
+  1320→      }, 200)
+  1321→      return () => clearInterval(interval)
+  1322→    }
+  1323→  }, [bootPhase])
+  1324→
+  1325→  // Handle unlock
+  1326→  const handleUnlock = () => { setBootPhase('ready') }
+  1327→
+  1328→  // Handle app click (link or game)
+  1329→  const handleAppClick = (app: AllApp) => {
+  1330→    if (app.isLink && app.url) {
+  1331→      window.open(app.url, '_blank')
+  1332→    } else {
+  1333→      setOpenApp(app.id)
+  1334→    }
+  1335→  }
+  1336→
+  1337→  // Swipe handling
+  1338→  const handleTouchStart = (e: React.TouchEvent) => {
+  1339→    setTouchEnd(null)
+  1340→    setTouchStart(e.targetTouches[0].clientX)
+  1341→  }
+  1342→
+  1343→  const handleTouchMove = (e: React.TouchEvent) => {
+  1344→    setTouchEnd(e.targetTouches[0].clientX)
+  1345→  }
+  1346→
+  1347→  const handleTouchEnd = () => {
+  1348→    if (!touchStart || !touchEnd) return
+  1349→    const distance = touchStart - touchEnd
+  1350→    const isLeftSwipe = distance > 50
+  1351→    const isRightSwipe = distance < -50
+  1352→    
+  1353→    if (isLeftSwipe && currentPage < TOTAL_PAGES - 1) {
+  1354→      setCurrentPage(p => p + 1)
+  1355→    } else if (isRightSwipe && currentPage > 0) {
+  1356→      setCurrentPage(p => p - 1)
+  1357→    }
+  1358→    
+  1359→    setTouchStart(null)
+  1360→    setTouchEnd(null)
+  1361→  }
+  1362→
+  1363→  // Get current page apps
+  1364→  const getCurrentPageApps = (): AllApp[] => {
+  1365→    const start = currentPage * APPS_PER_PAGE
+  1366→    return ALL_APPS.slice(start, start + APPS_PER_PAGE)
+  1367→  }
+  1368→
+  1369→  // Render app content based on ID
+  1370→  const renderAppContent = () => {
+  1371→    switch(openApp) {
+  1372→      case 'snake': return <SnakeGame onClose={() => setOpenApp(null)} />
+  1373→      case 'tictactoe': return <TicTacToe onClose={() => setOpenApp(null)} />
+  1374→      case 'memory': return <MemoryGame onClose={() => setOpenApp(null)} />
+  1375→      case 'puzzle2048': return <Puzzle2048 onClose={() => setOpenApp(null)} />
+  1376→      case 'whackamole': return <WhackAMole onClose={() => setOpenApp(null)} />
+  1377→      case 'calculator': return <CalculatorApp onClose={() => setOpenApp(null)} />
+  1378→      case 'stopwatch': return <StopwatchApp onClose={() => setOpenApp(null)} />
+  1379→      case 'notes': return <NotesApp onClose={() => setOpenApp(null)} />
+  1380→      case 'paint': return <PaintApp onClose={() => setOpenApp(null)} />
+  1381→      case 'dice': return <DiceApp onClose={() => setOpenApp(null)} />
+  1382→      case 'coinflip': return <CoinFlipApp onClose={() => setOpenApp(null)} />
+  1383→      case 'magic8ball': return <Magic8BallApp onClose={() => setOpenApp(null)} />
+  1384→      case 'jokes': return <JokesApp onClose={() => setOpenApp(null)} />
+  1385→      case 'piano': return <PianoApp onClose={() => setOpenApp(null)} />
+  1386→      case 'colorgen': return <ColorGenApp onClose={() => setOpenApp(null)} />
+  1387→      case 'agecalc': return <AgeCalcApp onClose={() => setOpenApp(null)} />
+  1388→      case 'tipcalc': return <TipCalcApp onClose={() => setOpenApp(null)} />
+  1389→      default: return null
+  1390→    }
+  1391→  }
+  1392→
+  1393→  return (
+  1394→    <div style={{
+  1395→      minHeight: '100vh',
+  1396→      minHeight: '100dvh',
+  1397→      background: 'linear-gradient(180deg, #0f0c29 0%, #302b63 50%, #24243e 100%)',
+  1398→      display: 'flex',
+  1399→      alignItems: 'center',
+  1400→      justifyContent: 'center',
+  1401→      padding: '16px',
+  1402→      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+  1403→    }}>
+  1404→      {/* Mobile Phone Container */}
+  1405→      <div style={{
+  1406→        width: '100%',
+  1407→        maxWidth: '380px',
+  1408→        height: 'calc(100vh - 32px)',
+  1409→        maxHeight: '800px',
+  1410→        position: 'relative'
+  1411→      }}>
+  1412→        {/* Phone Frame */}
+  1413→        <div style={{
+  1414→          width: '100%',
+  1415→          height: '100%',
+  1416→          background: '#1a1a1a',
+  1417→          borderRadius: '44px',
+  1418→          padding: '12px',
+  1419→          boxShadow: `
+  1420→            0 25px 60px rgba(0, 0, 0, 0.5),
+  1421→            0 10px 20px rgba(0, 0, 0, 0.3),
+  1422→            inset 0 0 0 2px rgba(255, 255, 255, 0.1)
+  1423→          `,
+  1424→          position: 'relative',
+  1425→          display: 'flex',
+  1426→          flexDirection: 'column'
+  1427→        }}>
+  1428→          {/* Dynamic Island / Notch */}
+  1429→          <div style={{
+  1430→            position: 'absolute',
+  1431→            top: '18px',
+  1432→            left: '50%',
+  1433→            transform: 'translateX(-50%)',
+  1434→            width: '120px',
+  1435→            height: '34px',
+  1436→            background: '#000',
+  1437→            borderRadius: '20px',
+  1438→            zIndex: 50,
+  1439→            boxShadow: 'inset 0 0 4px rgba(0,0,0,0.5)'
+  1440→          }} />
+  1441→
+  1442→          {/* Screen */}
+  1443→          <div style={{
+  1444→            flex: 1,
+  1445→            background: '#000',
+  1446→            borderRadius: '36px',
+  1447→            overflow: 'hidden',
+  1448→            position: 'relative',
+  1449→            display: 'flex',
+  1450→            flexDirection: 'column'
+  1451→          }}>
+  1452→            
+  1453→            {/* ========== PHASE 1: OFF / BLACK SCREEN ========== */}
+  1454→            {bootPhase === 'off' && (
+  1455→              <div style={{
+  1456→                width: '100%',
+  1457→                height: '100%',
+  1458→                background: '#000',
+  1459→                display: 'flex',
+  1460→                alignItems: 'center',
+  1461→                justifyContent: 'center'
+  1462→              }}>
+  1463→                <div style={{ width: '8px', height: '8px', background: '#222', borderRadius: '50%' }} />
+  1464→              </div>
+  1465→            )}
+  1466→
+  1467→            {/* ========== PHASE 2: LOGO ========== */}
+  1468→            {bootPhase === 'logo' && (
+  1469→              <div style={{
+  1470→                width: '100%',
+  1471→                height: '100%',
+  1472→                background: '#000',
+  1473→                display: 'flex',
+  1474→                flexDirection: 'column',
+  1475→                alignItems: 'center',
+  1476→                justifyContent: 'center',
+  1477→                gap: '20px'
+  1478→              }}>
+  1479→                <div style={{
+  1480→                  fontSize: '72px',
+  1481→                  animation: 'logoGlow 2s ease-in-out infinite',
+  1482→                  filter: 'drop-shadow(0 0 40px rgba(255,255,255,0.4))'
+  1483→                }}>📱</div>
+  1484→                <div style={{
+  1485→                  width: '40px', height: '3px', background: '#333', borderRadius: '2px', overflow: 'hidden'
+  1486→                }}>
+  1487→                  <div style={{
+  1488→                    width: '30%', height: '100%', background: '#fff', borderRadius: '2px',
+  1489→                    animation: 'shimmer 1.5s ease-in-out infinite'
+  1490→                  }} />
+  1491→                </div>
+  1492→                <style>{`
+  1493→                  @keyframes logoGlow { 0%, 100% { opacity: 0.7; transform: scale(1); } 50% { opacity: 1; transform: scale(1.05); filter: drop-shadow(0 0 60px rgba(255,255,255,0.6)); } }
+  1494→                  @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(350%); } }
+  1495→                `}</style>
+  1496→              </div>
+  1497→            )}
+  1498→
+  1499→            {/* ========== PHASE 3: LOADING WITH PROGRESS BAR ========== */}
+  1500→            {bootPhase === 'loading' && (
+  1501→              <div style={{
+  1502→                width: '100%',
+  1503→                height: '100%',
+  1504→                background: '#000',
+  1505→                display: 'flex',
+  1506→                flexDirection: 'column',
+  1507→                alignItems: 'center',
+  1508→                justifyContent: 'center',
+  1509→                gap: '30px'
+  1510→              }}>
+  1511→                <div style={{ fontSize: '48px', opacity: 0.9, filter: 'drop-shadow(0 0 20px rgba(99, 102, 241, 0.5))' }}>📱</div>
+  1512→                <div style={{ width: '200px', height: '4px', background: '#333', borderRadius: '2px', overflow: 'hidden' }}>
+  1513→                  <div style={{
+  1514→                    width: `${Math.min(bootProgress, 100)}%`, height: '100%',
+  1515→                    background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #a78bfa)',
+  1516→                    borderRadius: '2px', transition: 'width 0.15s ease-out',
+  1517→                    boxShadow: '0 0 10px rgba(99, 102, 241, 0.5)'
+  1518→                  }} />
+  1519→                </div>
+  1520→                <div style={{ color: '#666', fontSize: '12px', letterSpacing: '2px', textTransform: 'uppercase' }}>Starting up...</div>
+  1521→              </div>
+  1522→            )}
+  1523→
+  1524→            {/* ========== PHASE 4: HELLO SCREEN ========== */}
+  1525→            {bootPhase === 'hello' && (
+  1526→              <div style={{
+  1527→                width: '100%',
+  1528→                height: '100%',
+  1529→                background: 'linear-gradient(180deg, #1a1a3e 0%, #16213e 50%, #0d2137 100%)',
+  1530→                display: 'flex',
+  1531→                flexDirection: 'column',
+  1532→                alignItems: 'center',
+  1533→                justifyContent: 'center',
+  1534→                gap: '16px',
+  1535→                animation: 'fadeIn 0.8s ease-out'
+  1536→              }}>
+  1537→                <div style={{ color: '#fff', fontSize: '72px', fontWeight: '300', letterSpacing: '-2px', lineHeight: '1', textShadow: '0 2px 20px rgba(0,0,0,0.3)' }}>
+  1538→                  {currentTime || '--:--'}
+  1539→                </div>
+  1540→                <div style={{ color: 'rgba(255,255,255,0.85)', fontSize: '18px', fontWeight: '400' }}>
+  1541→                  {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+  1542→                </div>
+  1543→                <div style={{ marginTop: '40px', color: '#fff', fontSize: '32px', fontWeight: '600', animation: 'helloFadeIn 1s ease-out 0.3s both' }}>
+  1544→                  Hello
+  1545→                </div>
+  1546→                <style>{`
+  1547→                  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  1548→                  @keyframes helloFadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  1549→                `}</style>
+  1550→              </div>
+  1551→            )}
+  1552→
+  1553→            {/* ========== PHASE 5: LOCK SCREEN ========== */}
+  1554→            {bootPhase === 'lock' && (
+  1555→              <div 
+  1556→                onClick={handleUnlock}
+  1557→                onTouchStart={() => setShowUnlockHint(true)}
+  1558→                onTouchEnd={() => setShowUnlockHint(false)}
+  1559→                onMouseDown={() => setShowUnlockHint(true)}
+  1560→                onMouseUp={() => setShowUnlockHint(false)}
+  1561→                style={{
+  1562→                width: '100%',
+  1563→                height: '100%',
+  1564→                background: 'linear-gradient(180deg, #1a1a3e 0%, #16213e 35%, #1a3a52 65%, #0d2137 100%)',
+  1565→                cursor: 'pointer',
+  1566→                position: 'relative',
+  1567→                overflow: 'hidden'
+  1568→              }}>
+  1569→                {LOCK_STARS.map((star) => (
+  1570→                  <div key={`lock-star-${star.id}`} style={{
+  1571→                    position: 'absolute', top: `${star.top}%`, left: `${star.left}%`,
+  1572→                    width: `${star.size}px`, height: `${star.size}px`,
+  1573→                    background: '#fff', borderRadius: '50%', opacity: star.opacity,
+  1574→                    animation: `twinkle ${star.duration}s ease-in-out infinite`,
+  1575→                    animationDelay: `${star.delay}s`
+  1576→                  }} />
+  1577→                ))}
+  1578→                <div style={{ position: 'absolute', top: '10%', right: '15%', width: '45px', height: '45px', background: 'linear-gradient(135deg, #fef9c3 0%, #fde047 100%)', borderRadius: '50%', boxShadow: '0 0 25px rgba(250, 204, 21, 0.4)' }} />
+  1579→
+  1580→                <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: '50px', paddingTop: '14px', paddingLeft: '28px', paddingRight: '28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 20, color: '#fff', fontSize: '13px', fontWeight: '600' }}>
+  1581→                  <span>{currentTime}</span>
+  1582→                  <div style={{ display: 'flex', gap: '6px' }}><span>📶</span><span>🔋</span></div>
+  1583→                </div>
+  1584→
+  1585→                <div style={{ position: 'absolute', top: '25%', left: 0, right: 0, textAlign: 'center', zIndex: 10 }}>
+  1586→                  <div style={{ color: '#fff', fontSize: '80px', fontWeight: '300', letterSpacing: '-3px', lineHeight: '1', textShadow: '0 2px 30px rgba(0,0,0,0.3)' }}>{currentTime || '--:--'}</div>
+  1587→                  <div style={{ color: 'rgba(255,255,255,0.9)', fontSize: '18px', fontWeight: '500', marginTop: '4px' }}>
+  1588→                    {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
+  1589→                  </div>
+  1590→                </div>
+  1591→
+  1592→                <div style={{ position: 'absolute', bottom: '40px', left: '50%', transform: 'translateX(-50%)', textAlign: 'center', zIndex: 10, transition: 'all 0.2s ease', opacity: showUnlockHint ? 1 : 0.6 }}>
+  1593→                  <div style={{ width: '50px', height: '32px', border: '2px solid rgba(255,255,255,0.8)', borderRadius: '20px', margin: '0 auto 8px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+  1594→                    <div style={{ width: '22px', height: '22px', background: 'rgba(255,255,255,0.8)', borderRadius: '50%' }} />
+  1595→                  </div>
+  1596→                  <div style={{ color: 'rgba(255,255,255,0.8)', fontSize: '13px', fontWeight: '500' }}>Tap to unlock</div>
+  1597→                </div>
+  1598→                <style>{`@keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }`}</style>
+  1599→              </div>
+  1600→            )}
+  1601→
+  1602→            {/* ========== PHASE 6: HOME SCREEN OR OPEN APP ========== */}
+  1603→            {bootPhase === 'ready' && (
+  1604→              <>
+  1605→                {!openApp ? (
+  1606→                  /* ===== HOME SCREEN WITH APPS ===== */
+  1607→                  <>
+  1608→                    {/* Wallpaper */}
+  1609→                    <div style={{
+  1610→                      position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+  1611→                      background: 'linear-gradient(180deg, #1a1a3e 0%, #16213e 35%, #1a3a52 65%, #0d2137 100%)',
+  1612→                      overflow: 'hidden'
+  1613→                    }}>
+  1614→                      {/* Stars */}
+  1615→                      {HOME_STARS.map((star) => (
+  1616→                        <div key={`home-star-${star.id}`} style={{
+  1617→                          position: 'absolute', top: `${star.top}%`, left: `${star.left}%`,
+  1618→                          width: `${star.size}px`, height: `${star.size}px`,
+  1619→                          background: '#fff', borderRadius: '50%', opacity: star.opacity,
+  1620→                          animation: `twinkle ${star.duration}s ease-in-out infinite`,
+  1621→                          animationDelay: `${star.delay}s`
+  1622→                        }} />
+  1623→                      ))}
+  1624→                      
+  1625→                      {/* Moon */}
+  1626→                      <div style={{ position: 'absolute', top: '12%', right: '15%', width: '50px', height: '50px', background: 'linear-gradient(135deg, #fef9c3 0%, #fde047 50%, #facc15 100%)', borderRadius: '50%', boxShadow: '0 0 30px rgba(250, 204, 21, 0.5), 0 0 60px rgba(250, 204, 21, 0.25)' }} />
+  1627→                      
+  1628→                      {/* Aurora effect */}
+  1629→                      <div style={{ position: 'absolute', top: '5%', left: '-15%', width: '130%', height: '40%', background: 'linear-gradient(180deg, transparent 0%, rgba(34, 197, 94, 0.08) 20%, rgba(59, 130, 246, 0.12) 40%, rgba(168, 85, 247, 0.08) 60%, transparent 100%)', animation: 'aurora 8s ease-in-out infinite alternate', filter: 'blur(15px)', transform: 'skewX(-10deg)' }} />
+  1630→                      
+  1631→                      {/* Mountains */}
+  1632→                      <svg style={{ position: 'absolute', bottom: '22%', left: 0, width: '100%', height: '38%' }} viewBox="0 0 400 150" preserveAspectRatio="none">
+  1633→                        <path d="M0,150 L0,85 L45,55 L95,80 L145,35 L195,70 L245,30 L295,60 L345,42 L400,68 L400,150 Z" fill="#1e3a5f" opacity="0.85"/>
+  1634→                        <path d="M0,150 L0,95 L35,72 L78,88 L138,48 L188,73 L238,42 L288,67 L338,52 L400,78 L400,150 Z" fill="#152238" opacity="0.9"/>
+  1635→                      </svg>
+  1636→                      
+  1637→                      {/* Ground/Trees */}
+  1638→                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '22%', background: 'linear-gradient(180deg, #0d1b2a 0%, #051015 100%)' }}>
+  1639→                        {HOME_TREES.map((tree) => (
+  1640→                          <div key={`home-tree-${tree.id}`} style={{
+  1641→                            position: 'absolute', bottom: 0, left: `${tree.left}%`,
+  1642→                            width: `${tree.width}px`, height: `${tree.height}px`,
+  1643→                            background: 'linear-gradient(180deg, #0a1929 0%, #050d14 100%)',
+  1644→                            clipPath: 'polygon(50% 0%, 0% 100%, 100% 100%)', opacity: tree.opacity
+  1645→                          }} />
+  1646→                        ))}
+  1647→                      </div>
+  1648→                      
+  1649→                      {/* Water reflection */}
+  1650→                      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '6%', background: 'linear-gradient(180deg, rgba(30, 58, 95, 0.4) 0%, rgba(5, 16, 21, 0.7) 100%)', animation: 'water 4s ease-in-out infinite' }} />
+  1651→
+  1652→                      <style>{`
+  1653→                        @keyframes twinkle { 0%, 100% { opacity: 0.3; transform: scale(1); } 50% { opacity: 1; transform: scale(1.2); } }
+  1654→                        @keyframes aurora { 0% { opacity: 0.3; transform: skewX(-10deg) translateX(-5%); } 100% { opacity: 0.7; transform: skewX(-10deg) translateX(5%); } }
+  1655→                        @keyframes water { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+  1656→                      `}</style>
+  1657→                    </div>
+  1658→
+  1659→                    {/* Status Bar */}
+  1660→                    <div style={{
+  1661→                      position: 'absolute', top: 0, left: 0, right: 0, height: '50px', paddingTop: '14px',
+  1662→                      paddingLeft: '28px', paddingRight: '28px', display: 'flex', justifyContent: 'space-between',
+  1663→                      alignItems: 'center', zIndex: 20, color: '#fff', fontSize: '13px', fontWeight: '600',
+  1664→                      textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+  1665→                    }}>
+  1666→                      <span>{currentTime}</span>
+  1667→                      <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}><span>📶</span><span>🔋</span></div>
+  1668→                    </div>
+  1669→
+  1670→                    {/* Swipeable App Grid - 3x3 per page like iPhone! 📱 */}
+  1671→                    <div
+  1672→                      onTouchStart={handleTouchStart}
+  1673→                      onTouchMove={handleTouchMove}
+  1674→                      onTouchEnd={handleTouchEnd}
+  1675→                      style={{
+  1676→                        position: 'absolute', top: '54px', left: 0, right: 0, bottom: '45px',
+  1677→                        display: 'flex', flexDirection: 'column',
+  1678→                        zIndex: 10, touchAction: 'pan-y'
+  1679→                      }}
+  1680→                    >
+  1681→                      {/* 3x3 App Grid */}
+  1682→                      <div style={{
+  1683→                        flex: 1,
+  1684→                        display: 'grid',
+  1685→                        gridTemplateColumns: 'repeat(3, 1fr)',
+  1686→                        gridTemplateRows: 'repeat(3, 1fr)',
+  1687→                        gap: '12px 16px',
+  1688→                        padding: '20px 24px',
+  1689→                        alignItems: 'center'
+  1690→                      }}>
+  1691→                        {getCurrentPageApps().map((app, index) => (
+  1692→                          <button
+  1693→                            key={`${currentPage}-${app.id}`}
+  1694→                            onClick={() => handleAppClick(app)}
+  1695→                            onTouchStart={() => setSelectedApp(currentPage * APPS_PER_PAGE + index)}
+  1696→                            onTouchEnd={() => setTimeout(() => setSelectedApp(null), 200)}
+  1697→                            onMouseDown={() => setSelectedApp(currentPage * APPS_PER_PAGE + index)}
+  1698→                            onMouseUp={() => setTimeout(() => setSelectedApp(null), 200)}
+  1699→                            style={{
+  1700→                              display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
+  1701→                              background: 'none', border: 'none', cursor: 'pointer', padding: '8px',
+  1702→                              transition: 'transform 0.15s ease',
+  1703→                              transform: selectedApp === currentPage * APPS_PER_PAGE + index ? 'scale(0.9)' : 'scale(1)'
+  1704→                            }}
+  1705→                          >
+  1706→                            <div style={{
+  1707→                              width: '64px', height: '64px', borderRadius: '16px', background: app.gradient,
+  1708→                              display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '28px',
+  1709→                              boxShadow: selectedApp === currentPage * APPS_PER_PAGE + index 
+  1710→                                ? '0 6px 25px rgba(0,0,0,0.5), inset 0 0 0 1px rgba(255,255,255,0.4)' 
+  1711→                                : '0 4px 15px rgba(0,0,0,0.35)',
+  1712→                              border: selectedApp === currentPage * APPS_PER_PAGE + index ? '2px solid rgba(255,255,255,0.6)' : 'none',
+  1713→                              transition: 'all 0.15s ease'
+  1714→                            }}>{app.icon}</div>
+  1715→                            <span style={{
+  1716→                              fontSize: '11px', color: '#fff', fontWeight: '500',
+  1717→                              textShadow: '0 1px 3px rgba(0,0,0,0.8), 0 0 10px rgba(0,0,0,0.5)',
+  1718→                              textAlign: 'center', letterSpacing: '0.2px'
+  1719→                            }}>{app.name}</span>
+  1720→                          </button>
+  1721→                        ))}
+  1722→                      </div>
+  1723→
+  1724→                      {/* Page Indicator Dots • • • */}
+  1725→                      <div style={{
+  1726→                        display: 'flex', justifyContent: 'center', gap: '8px',
+  1727→                        paddingBottom: '12px'
+  1728→                      }}>
+  1729→                        {Array.from({ length: TOTAL_PAGES }).map((_, i) => (
+  1730→                          <div key={i} style={{
+  1731→                            width: currentPage === i ? '8px' : '7px',
+  1732→                            height: currentPage === i ? '8px' : '7px',
+  1733→                            borderRadius: '50%',
+  1734→                            background: currentPage === i ? '#fff' : 'rgba(255,255,255,0.4)',
+  1735→                            transition: 'all 0.2s ease',
+  1736→                            boxShadow: currentPage === i ? '0 0 8px rgba(255,255,255,0.5)' : 'none'
+  1737→                          }} />
+  1738→                        ))}
+  1739→                      </div>
+  1740→                    </div>
+  1741→
+  1742→                    {/* Home Indicator Bar */}
+  1743→                    <div style={{
+  1744→                      position: 'absolute', bottom: '10px', left: '50%', transform: 'translateX(-50%)',
+  1745→                      width: '134px', height: '5px', background: 'rgba(255,255,255,0.55)', borderRadius: '3px', zIndex: 20
+  1746→                    }} />
+  1747→
+  1748→                    {/* Screen glare effect */}
+  1749→                    <div style={{
+  1750→                      position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+  1751→                      background: 'linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 40%, transparent 100%)',
+  1752→                      pointerEvents: 'none', zIndex: 25, borderRadius: '36px'
+  1753→                    }} />
+  1754→                  </>
+  1755→                ) : (
+  1756→                  /* ===== OPEN APP VIEW ===== */
+  1757→                  <div style={{
+  1758→                    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+  1759→                    background: 'linear-gradient(180deg, #121220 0%, #1a1a2e 50%, #16162a 100%)',
+  1760→                    borderRadius: '36px', padding: '50px 12px 12px', overflow: 'auto',
+  1761→                    display: 'flex', flexDirection: 'column', zIndex: 30
+  1762→                  }}>
+  1763→                    {/* App Header */}
+  1764→                    <div style={{
+  1765→                      display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px',
+  1766→                      paddingBottom: '12px', borderBottom: '1px solid rgba(255,255,255,0.1)'
+  1767→                    }}>
+  1768→                      <button onClick={() => setOpenApp(null)} style={{
+  1769→                        width: '32px', height: '32px', borderRadius: '50%',
+  1770→                        background: 'rgba(255,255,255,0.1)', border: 'none', color: '#fff',
+  1771→                        fontSize: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center'
+  1772→                      }}>←</button>
+  1773→                      <span style={{ color: '#fff', fontSize: '16px', fontWeight: '600' }}>
+  1774→                        {ALL_APPS.find(a => a.id === openApp)?.name || 'App'}
+  1775→                      </span>
+  1776→                    </div>
+  1777→                    
+  1778→                    {/* App Content */}
+  1779→                    <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+  1780→                      {renderAppContent()}
+  1781→                    </div>
+  1782→                  </div>
+  1783→                )}
+  1784→              </>
+  1785→            )}
+  1786→          </div>
+  1787→          
+  1788→          {/* Side Buttons */}
+  1789→          <div style={{ position: 'absolute', right: '-2px', top: '140px', width: '4px', height: '60px', background: '#333', borderRadius: '0 4px 4px 0' }} />
+  1790→          <div style={{ position: 'absolute', left: '-2px', top: '180px', width: '4px', height: '40px', background: '#333', borderRadius: '4px 0 0 4px' }} />
+  1791→          <div style={{ position: 'absolute', left: '-2px', top: '240px', width: '4px', height: '50px', background: '#333', borderRadius: '4px 0 0 4px' }} />
+  1792→        </div>
+  1793→        
+  1794→        {/* Brand Text below phone */}
+  1795→        <div style={{
+  1796→          textAlign: 'center', marginTop: '16px', color: 'rgba(255,255,255,0.4)',
+  1797→          fontSize: '11px', letterSpacing: '2px', textTransform: 'uppercase', fontWeight: '500'
+  1798→        }}>
+  1799→          ✨ Swipe to Explore {ALL_APPS.length} Apps! ✨
+  1800→        </div>
+  1801→      </div>
+  1802→    </div>
+  1803→  )
+  1804→}
+  1805→
